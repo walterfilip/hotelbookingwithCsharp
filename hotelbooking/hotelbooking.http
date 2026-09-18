@@ -9,9 +9,9 @@ POST http://localhost:5298/api/customer
 Content-Type: application/json
 
 {
-    "firstName": "Anna",
-    "lastName": "Andersson",
-    "email": "anna@test.se"
+    "firstName": "aa",
+    "lastName": "aa",
+    "email": "a@t"
 }
 
 ###
@@ -23,7 +23,7 @@ GET http://localhost:5298/api/customer
 PUT https://localhost:7263/api/customer/2
 Content-Type: application/json
 {
-    "firstName": "Per",
+    "firstName": "",
     "lastName": "Anders",
     "email": "per@test.se"
 }

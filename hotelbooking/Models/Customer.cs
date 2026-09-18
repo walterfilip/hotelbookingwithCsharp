@@ -1,4 +1,6 @@
-﻿namespace hotelbooking.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace hotelbooking.Models
 {
     public class Customer
     {
@@ -7,7 +9,7 @@
         public string FirstName { get; set; }
 
         public string Lastname { get; set; }
-
+        [EmailAddress]
         public string Email { get; set; }
     }
 }

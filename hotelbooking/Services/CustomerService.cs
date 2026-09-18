@@ -27,13 +27,17 @@ namespace hotelbooking.Services
         }
         public Customer CreateCustomer(Customer customer)
         {
+            if (string.IsNullOrWhiteSpace(customer.FirstName))
+            {
+                throw new InvalidCustomerException("förnamn måste anges");
+            }
+            if (string.IsNullOrWhiteSpace(customer.Lastname))
+            {
+                throw new InvalidCustomerException("efternamn måste anges");
+            }
             customer.Id = _customers.Count + 1;
-            _customers.Add(customer);
-            Console.WriteLine($"antal kunder: {_customers.Count}");
-            //Console.WriteLine($"{customer.Id}");
-            // _logger.LogInformation($"antal kunder: {_customers.Count}");
-
-
+            _customers.Add(customer);        
+         
             return customer;
         }
 
