@@ -1,0 +1,42 @@
+@hotelbooking_HostAddress = http://localhost:5298
+
+
+
+###
+
+
+POST http://localhost:5298/api/customer
+Content-Type: application/json
+
+{
+    "firstName": "Anna",
+    "lastName": "Andersson",
+    "email": "anna@test.se"
+}
+
+###
+
+GET http://localhost:5298/api/customer
+
+###
+
+PUT https://localhost:7263/api/customer/2
+Content-Type: application/json
+{
+    "firstName": "Per",
+    "lastName": "Anders",
+    "email": "per@test.se"
+}
+
+###
+DELETE https://localhost:7263/api/customer/2
+
+###
+PUT https://localhost:7263/api/customer/12
+Content-Type: application/json
+
+{
+    "firstName": "Ingen",
+    "lastName": "Kund",
+    "email": "test@test.se"
+}
