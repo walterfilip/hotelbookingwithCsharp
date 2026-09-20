@@ -9,6 +9,7 @@ namespace hotelbooking.Models
         public string FirstName { get; set; }
 
         public string Lastname { get; set; }
+        [Required]
         [EmailAddress]
         public string Email { get; set; }
     }

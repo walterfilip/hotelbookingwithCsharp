@@ -1,4 +1,6 @@
 using hotelbooking.Services;
+using hotelbooking.Data;
+using Microsoft.EntityFrameworkCore;
 namespace hotelbooking
 {
     public class Program
@@ -10,7 +12,12 @@ namespace hotelbooking
             // Add services to the container.
 
             builder.Services.AddControllers();
-            builder.Services.AddSingleton<CustomerService>();
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseMySQL(
+                    builder.Configuration.GetConnectionString("DefaultConnection")                   
+                ));
+            builder.Services.AddScoped<CustomerService>();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 

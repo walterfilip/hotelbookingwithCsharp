@@ -9,27 +9,27 @@ POST http://localhost:5298/api/customer
 Content-Type: application/json
 
 {
-    "firstName": "aa",
-    "lastName": "aa",
-    "email": "a@t"
+    "firstName": "hasse",
+    "lastName": "larsson",
+    "email": "hasse@hej.se"
 }
 
 ###
 
-GET http://localhost:5298/api/customer
+GET http://localhost:5298/api/customer/3
 
 ###
 
-PUT https://localhost:7263/api/customer/2
+PUT https://localhost:7263/api/customer/1
 Content-Type: application/json
 {
-    "firstName": "",
-    "lastName": "Anders",
+    "firstName": "sd",
+    "lastName": "",
     "email": "per@test.se"
 }
 
 ###
-DELETE https://localhost:7263/api/customer/2
+DELETE https://localhost:7263/api/customer/3
 
 ###
 PUT https://localhost:7263/api/customer/12
