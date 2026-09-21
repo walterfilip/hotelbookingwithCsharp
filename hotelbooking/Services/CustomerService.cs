@@ -18,9 +18,12 @@ namespace hotelbooking.Services
             ];
         private readonly AppDbContext _context;
 
-        public CustomerService(AppDbContext context)
+        private readonly ILogger<CustomerService> _logger;
+
+        public CustomerService(AppDbContext context, ILogger<CustomerService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public List<Customer> GetAllCustomers()
@@ -30,23 +33,40 @@ namespace hotelbooking.Services
 
         public Customer ? GetCustomer(int id)
         {
-            return _context.Customers.FirstOrDefault(c => c.Id == id);
+            Customer? customer = _context.Customers.FirstOrDefault(c => c.Id == id);
+            if(customer == null)
+            {
+                _logger.LogWarning("Kunden med id {Id} hittades inte", id);
+            }
+            return customer;
         }
         public Customer CreateCustomer(Customer customer)
         {
             if (string.IsNullOrWhiteSpace(customer.FirstName))
             {
+                _logger.LogWarning("Försök att skapa kund utan förnamn");
                 throw new InvalidCustomerException("förnamn måste anges");
             }
             if (string.IsNullOrWhiteSpace(customer.Lastname))
             {
+                _logger.LogWarning("Försök att skapa kund utan efternamn");
                 throw new InvalidCustomerException("efternamn måste anges");
             }
-            _context.Customers.Add(customer);
-            _context.SaveChanges();
 
-            return customer;
-        }
+            try
+            {
+                _logger.LogInformation("Skapar kund: {FirstName} {Email}", customer.FirstName, customer.Email);
+                            _context.Customers.Add(customer);
+                            _context.SaveChanges();
+
+                            return customer;
+             }catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ett fel uppstod när kunden skulle sparas");
+                throw;
+            }
+            }
+            
 
         public Customer UpdateCustomer(int id, Customer customer)
         {

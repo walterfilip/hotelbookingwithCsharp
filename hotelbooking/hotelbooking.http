@@ -9,14 +9,14 @@ POST http://localhost:5298/api/customer
 Content-Type: application/json
 
 {
-    "firstName": "hasse",
-    "lastName": "larsson",
-    "email": "hasse@hej.se"
+    "firstName": "Göran",
+    "lastName": "Klarsson",
+    "email": "g-clear@hej.se"
 }
 
 ###
 
-GET http://localhost:5298/api/customer/3
+GET http://localhost:5298/api/customer/
 
 ###
 
@@ -29,7 +29,7 @@ Content-Type: application/json
 }
 
 ###
-DELETE https://localhost:7263/api/customer/3
+DELETE https://localhost:7263/api/customer/5
 
 ###
 PUT https://localhost:7263/api/customer/12
@@ -40,3 +40,11 @@ Content-Type: application/json
     "lastName": "Kund",
     "email": "test@test.se"
 }
+
+###
+
+GET https://localhost:7263/api/room
+
+###
+
+GET https://localhost:7263/api/room/999

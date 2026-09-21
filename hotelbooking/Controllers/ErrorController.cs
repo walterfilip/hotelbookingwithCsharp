@@ -15,11 +15,15 @@ namespace hotelbooking.Controllers
 
             if (exception is CustomerNotFoundException)
             {
-                return NotFound();
+                return NotFound(exception.Message);
             }
             if(exception is InvalidCustomerException)
             {
                 return BadRequest(exception.Message);
+            }
+            if(exception is RoomNotFoundException)
+            {
+                return NotFound(exception.Message);
             }
             return Problem();
           

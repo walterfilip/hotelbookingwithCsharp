@@ -1,6 +1,6 @@
 ﻿using hotelbooking.Services;
 using hotelbooking.Models;
-using hotelbooking.Exceptions;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace hotelbooking.Controllers
@@ -25,10 +25,7 @@ namespace hotelbooking.Controllers
         public ActionResult<Customer> GetCustomer(int id)
         {
             Customer customer = _customerService.GetCustomer(id);
-            if(customer == null)
-            {
-                return NotFound();
-            }
+            
             return Ok(customer);
         }
 

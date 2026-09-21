@@ -9,5 +9,6 @@ namespace hotelbooking.Data
         {
         }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Room> Rooms { get; set; }
     }
 }
