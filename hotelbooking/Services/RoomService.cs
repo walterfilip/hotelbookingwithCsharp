@@ -33,6 +33,21 @@ namespace hotelbooking.Services
 
         public Room CreateRoom(Room room)
         {
+            if (room.Price <= 0)
+            {
+                _logger.LogWarning("Försök att skapa rum med ogiltigt pris: {Price}", room.Price);
+                throw new InvalidRoomException("Pris måste vara större än 0");
+            }
+            if (!Enum.IsDefined(room.Type))
+            {
+                _logger.LogWarning("Försök att skapa rum med ogiltig typ: {Type}", room.Type);
+                throw new InvalidRoomException("Ogiltig rumstyp");
+            }
+            if (room.RoomNumber <= 0)
+            {
+                _logger.LogWarning("Försök att skapa rum med ogiltigt rumsnummer: {RoomNumber}", room.RoomNumber);
+                throw new InvalidRoomException("Rumsnummer måste vara större än 0");
+            }
             _context.Rooms.Add(room);
             _context.SaveChanges();
             _logger.LogInformation("Rummet med id {Id} skapades", room.Id);

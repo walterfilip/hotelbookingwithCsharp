@@ -48,3 +48,24 @@ GET https://localhost:7263/api/room
 ###
 
 GET https://localhost:7263/api/room/999
+
+###
+POST https://localhost:7263/api/room
+Content-Type: application/json
+{
+    "roomNumber": 202,
+    "type": "Double",
+    "price": 1295,
+    "description": "Dubbelrum utan fönster"
+}
+
+###
+POST https://localhost:7263/api/room
+Content-Type: application/json
+
+{
+    "roomNumber": 103,
+    "RoomType": "Single",
+    "price": 795,
+    "description": "Enkelt rum utan fönster"
+}

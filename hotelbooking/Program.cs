@@ -1,6 +1,7 @@
 using hotelbooking.Services;
 using hotelbooking.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 namespace hotelbooking
 {
     public class Program
@@ -11,7 +12,12 @@ namespace hotelbooking
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(
+                        new JsonStringEnumConverter());
+                });
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySQL(

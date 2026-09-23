@@ -6,16 +6,7 @@ namespace hotelbooking.Services
 {
     public class CustomerService
     {
-        private readonly List<Customer> _customers =
-        [
-            new Customer
-            {
-                Id = 1,
-                FirstName = "Jens",
-                Lastname ="Sond",
-                Email = "jesse@test.se"
-            }
-            ];
+      
         private readonly AppDbContext _context;
 
         private readonly ILogger<CustomerService> _logger;

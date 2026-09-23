@@ -27,6 +27,13 @@ namespace hotelbooking.Controllers
            
             return Ok(room);
         }
+        [HttpPost]
+        public ActionResult<Room> CreateRoom(Room room)
+        {
+            Room createdRoom = _roomService.CreateRoom(room);
+
+            return Ok(createdRoom);
+        }
 
     }
 }
