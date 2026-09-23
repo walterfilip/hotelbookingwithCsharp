@@ -32,7 +32,7 @@ namespace hotelbooking.Tests
             var customer = new Customer
             {
                 FirstName = "John",
-                Lastname = "Doe",
+                LastName = "Doe",
                 Email = "john.doe@example.com"
             };
 
@@ -44,7 +44,7 @@ namespace hotelbooking.Tests
 
             Assert.NotNull(result);
             Assert.Equal("John", result.FirstName);
-            Assert.Equal("Doe", result.Lastname);
+            Assert.Equal("Doe", result.LastName);
 
         }
         [Fact]
@@ -61,7 +61,7 @@ namespace hotelbooking.Tests
             var customer = new Customer
             {
                 FirstName = "Jane",
-                Lastname = "Smith",
+                LastName = "Smith",
                 Email = "jane.smith@example.com"
             };
 
@@ -69,7 +69,7 @@ namespace hotelbooking.Tests
 
             Assert.NotNull(result);
             Assert.Equal(customer.FirstName, result.FirstName);
-            Assert.Equal(customer.Lastname, result.Lastname);
+            Assert.Equal(customer.LastName, result.LastName);
             Assert.Equal(customer.Email, result.Email);
 
             var savedCustomer = _context.Customers.FirstOrDefault(c => c.Email == customer.Email);
@@ -82,7 +82,7 @@ namespace hotelbooking.Tests
             var customer = new Customer
             {
                 FirstName = "",
-                Lastname = "Smith",
+                LastName = "Smith",
                 Email = "jane.smith@example.com"
             };
 
@@ -96,7 +96,7 @@ namespace hotelbooking.Tests
             var customer = new Customer
             {
                 FirstName = "Jane",
-                Lastname = "",
+                LastName = "",
                 Email = "jane.smith@example.com"
             };
 
@@ -110,7 +110,7 @@ namespace hotelbooking.Tests
             Customer customer = new Customer
             {
                 FirstName = "Janne",
-                Lastname = "Svensson",
+                LastName = "Svensson",
                 Email = "janne.svensson@example.com"
             };
 
@@ -119,7 +119,7 @@ namespace hotelbooking.Tests
             _service.UpdateCustomer(createdCustomer.Id, new Customer
             {
                 FirstName = "Jens",
-                Lastname = "Sandström",
+                LastName = "Sandström",
                 Email = "jens.sandstrom@example.com"
             });
 
@@ -128,7 +128,7 @@ namespace hotelbooking.Tests
             Assert.NotNull(updatedCustomer);
             Assert.Equal(createdCustomer.Id, updatedCustomer.Id);
             Assert.Equal("Jens", updatedCustomer.FirstName);
-            Assert.Equal("Sandström", updatedCustomer.Lastname);
+            Assert.Equal("Sandström", updatedCustomer.LastName);
             Assert.Equal("jens.sandstrom@example.com", updatedCustomer.Email);
 
         }
@@ -140,7 +140,7 @@ namespace hotelbooking.Tests
             var exception = Assert.Throws<CustomerNotFoundException>(() => _service.UpdateCustomer(999, new Customer
             {
                 FirstName = "Jens",
-                Lastname = "Sandström",
+                LastName = "Sandström",
                 Email = "jens.sandstrom@example.com"
 
             }));
@@ -152,7 +152,7 @@ namespace hotelbooking.Tests
             Customer customer = new Customer
             {
                 FirstName = "Janne",
-                Lastname = "Svensson",
+                LastName = "Svensson",
                 Email = "janne.svensson@example.com"
 
             };
@@ -161,7 +161,7 @@ namespace hotelbooking.Tests
             var exception = Assert.Throws<InvalidCustomerException>(() => _service.UpdateCustomer(customer.Id, new Customer
             {
                 FirstName = "",
-                Lastname = "Sandström",
+                LastName = "Sandström",
                 Email = "jens.sandstrom@example.com"
 
             }));
@@ -173,7 +173,7 @@ namespace hotelbooking.Tests
             Customer customer = new Customer
             {
                 FirstName = "Janne",
-                Lastname = "Svensson",
+                LastName = "Svensson",
                 Email = "janne.svensson@example.com"
             };
 
@@ -182,7 +182,7 @@ namespace hotelbooking.Tests
             var exception = Assert.Throws<InvalidCustomerException>(() => _service.UpdateCustomer(createdCustomer.Id, new Customer
             {
                 FirstName = "Jens",
-                Lastname = "",
+                LastName = "",
                 Email = "jens.sandstrom@example.com"
 
             }));
@@ -194,7 +194,7 @@ namespace hotelbooking.Tests
             Customer customer = new Customer
             {
                 FirstName = "Janne",
-                Lastname = "Svensson",
+                LastName = "Svensson",
                 Email = "janne.svensson@example.com"
             };
 
@@ -220,14 +220,14 @@ namespace hotelbooking.Tests
             _service.CreateCustomer(new Customer
             {
                 FirstName = "Janne",
-                Lastname = "Svensson",
+                LastName = "Svensson",
                 Email = "janne@example.com"
             });
 
             _service.CreateCustomer(new Customer
             {
                 FirstName = "Anna",
-                Lastname = "Andersson",
+                LastName = "Andersson",
                 Email = "anna@example.com"
             });
 

@@ -30,10 +30,26 @@ namespace hotelbooking.Controllers
         [HttpPost]
         public ActionResult<Room> CreateRoom(Room room)
         {
-            Room createdRoom = _roomService.CreateRoom(room);
+            Room createdRoom = _roomService.CreateRoom(room);          
 
-            return Ok(createdRoom);
+            return CreatedAtAction(nameof(GetRoom), new { id = createdRoom.Id }, createdRoom);
+        }
+        [HttpPut("{id}")]
+        public ActionResult<Room> UpdateRoom(int id, Room room)
+        {
+            Room updateRoom = _roomService.UpdateRoom(id, room);
+            return Ok(updateRoom);
         }
 
+        [HttpDelete("{id}")]
+        public IActionResult DeleteRoom(int id)
+        {
+            bool deleted = _roomService.DeleteRoom(id);
+            if (!deleted)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
     }
 }

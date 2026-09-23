@@ -9,14 +9,14 @@ POST http://localhost:5298/api/customer
 Content-Type: application/json
 
 {
-    "firstName": "Göran",
-    "lastName": "Klarsson",
-    "email": "g-clear@hej.se"
+    "firstName": "Inge",
+    "lastName": "Felsson",
+    "email": "unclear@hej.se"
 }
 
 ###
 
-GET http://localhost:5298/api/customer/
+GET http://localhost:5298/api/customer/12
 
 ###
 
@@ -47,16 +47,16 @@ GET https://localhost:7263/api/room
 
 ###
 
-GET https://localhost:7263/api/room/999
+GET https://localhost:7263/api/room/8
 
 ###
 POST https://localhost:7263/api/room
 Content-Type: application/json
 {
-    "roomNumber": 202,
+    "roomNumber": 203,
     "type": "Double",
-    "price": 1295,
-    "description": "Dubbelrum utan fönster"
+    "price": 1275,
+    "description": "Dubbelrum med fönster"
 }
 
 ###
@@ -69,3 +69,17 @@ Content-Type: application/json
     "price": 795,
     "description": "Enkelt rum utan fönster"
 }
+###
+PUT https://localhost:7263/api/room/1
+Content-Type: application/json
+{
+  "id": 1,
+  "roomNumber": 101,
+  "type": "Single",
+  "price": 775.00,
+  "description": "Enkelt källar rum"
+}
+
+###
+
+DELETE https://localhost:7263/api/room/8

@@ -65,6 +65,7 @@ namespace hotelbooking.Services
                 existingRoom.Price = room.Price;
                 existingRoom.Type = room.Type;
                 existingRoom.RoomNumber = room.RoomNumber;
+                existingRoom.Description = room.Description;
 
                 _context.SaveChanges();
                 _logger.LogInformation("Rummet med id {Id} uppdaterades", existingRoom.Id);

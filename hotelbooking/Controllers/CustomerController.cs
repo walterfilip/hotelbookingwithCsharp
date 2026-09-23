@@ -35,7 +35,7 @@ namespace hotelbooking.Controllers
            
             Customer createCustomer = _customerService.CreateCustomer(customer);
 
-            return Ok(createCustomer);
+            return CreatedAtAction(nameof(GetCustomer), new { id = createCustomer.Id }, createCustomer);
         }
 
         [HttpPut("{id}")]

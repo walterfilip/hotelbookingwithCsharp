@@ -28,6 +28,7 @@ namespace hotelbooking.Services
             if(customer == null)
             {
                 _logger.LogWarning("Kunden med id {Id} hittades inte", id);
+                throw new CustomerNotFoundException($"Kund med id {id} finns ej");
             }
             return customer;
         }
@@ -38,7 +39,7 @@ namespace hotelbooking.Services
                 _logger.LogWarning("Försök att skapa kund utan förnamn");
                 throw new InvalidCustomerException("förnamn måste anges");
             }
-            if (string.IsNullOrWhiteSpace(customer.Lastname))
+            if (string.IsNullOrWhiteSpace(customer.LastName))
             {
                 _logger.LogWarning("Försök att skapa kund utan efternamn");
                 throw new InvalidCustomerException("efternamn måste anges");
@@ -71,13 +72,13 @@ namespace hotelbooking.Services
             {
                 throw new InvalidCustomerException("Förnamn måste anges");
             }
-            if (string.IsNullOrWhiteSpace(customer.Lastname))
+            if (string.IsNullOrWhiteSpace(customer.LastName))
             {
                 throw new InvalidCustomerException("Efternamn måste anges");
             }
 
             existingCustomer.FirstName = customer.FirstName;
-            existingCustomer.Lastname = customer.Lastname;
+            existingCustomer.LastName = customer.LastName;
             existingCustomer.Email = customer.Email;
 
             _context.SaveChanges();
