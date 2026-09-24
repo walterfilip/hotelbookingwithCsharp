@@ -21,7 +21,7 @@ namespace hotelbooking
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySQL(
-                    builder.Configuration.GetConnectionString("DefaultConnection")                   
+                    builder.Configuration.GetConnectionString("DefaultConnection")!                  
                 ));
             builder.Services.AddScoped<CustomerService>();
             builder.Services.AddScoped<RoomService>();

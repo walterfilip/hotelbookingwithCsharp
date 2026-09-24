@@ -25,6 +25,10 @@ namespace hotelbooking.Controllers
             {
                 return NotFound(exception.Message);
             }
+            if(exception is InvalidRoomException)
+            {
+                return BadRequest(exception.Message);
+            }
             return Problem();
           
         }

@@ -48,11 +48,10 @@ namespace hotelbooking.Tests
 
         }
         [Fact]
-        public void GetCustomerShouldReturnNullWhenCustomerDoesNotExist()
+        public void GetCustomerShouldThrowExceptionWhenCustomerDoesNotExist()
         {
-            var result = _service.GetCustomer(999); // Assuming 999 is an ID that does not exist
-
-            Assert.Null(result);
+            var exception = Assert.Throws<CustomerNotFoundException>(() => _service.GetCustomer(999)); // Assuming 999 is an ID that does not exist
+            Assert.Equal($"Kund med id 999 finns ej", exception.Message);
 
         }
         [Fact]
@@ -203,8 +202,8 @@ namespace hotelbooking.Tests
             var deleted = _service.DeleteCustomer(createdCustomer.Id);
             Assert.True(deleted);
 
-            var deletedCustomer = _service.GetCustomer(createdCustomer.Id);
-            Assert.Null(deletedCustomer);            
+            var deletedCustomer = Assert.Throws<CustomerNotFoundException>(() => _service.GetCustomer(createdCustomer.Id));
+            Assert.Equal($"Kund med id {createdCustomer.Id} finns ej", deletedCustomer.Message);
         }
 
         [Fact]

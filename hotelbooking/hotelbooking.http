@@ -47,7 +47,7 @@ GET https://localhost:7263/api/room
 
 ###
 
-GET https://localhost:7263/api/room/8
+GET https://localhost:7263/api/room/1
 
 ###
 POST https://localhost:7263/api/room
@@ -56,7 +56,7 @@ Content-Type: application/json
     "roomNumber": 203,
     "type": "Double",
     "price": 1275,
-    "description": "Dubbelrum med fönster"
+    "description": ""
 }
 
 ###
@@ -64,20 +64,19 @@ POST https://localhost:7263/api/room
 Content-Type: application/json
 
 {
-    "roomNumber": 103,
+    "roomNumber": 110,
     "RoomType": "Single",
     "price": 795,
-    "description": "Enkelt rum utan fönster"
+    "description": "heje"
 }
 ###
 PUT https://localhost:7263/api/room/1
 Content-Type: application/json
-{
-  "id": 1,
+{ 
   "roomNumber": 101,
-  "type": "Single",
+  "RoomType": "Single",
   "price": 775.00,
-  "description": "Enkelt källar rum"
+  "description": ""
 }
 
 ###

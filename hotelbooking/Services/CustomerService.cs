@@ -22,7 +22,7 @@ namespace hotelbooking.Services
             return _context.Customers.ToList();
         }
 
-        public Customer ? GetCustomer(int id)
+        public Customer GetCustomer(int id)
         {
             Customer? customer = _context.Customers.FirstOrDefault(c => c.Id == id);
             if(customer == null)

@@ -33,23 +33,11 @@ namespace hotelbooking.Services
 
         public Room CreateRoom(Room room)
         {
-            if (room.Price <= 0)
-            {
-                _logger.LogWarning("Försök att skapa rum med ogiltigt pris: {Price}", room.Price);
-                throw new InvalidRoomException("Pris måste vara större än 0");
-            }
-            if (!Enum.IsDefined(room.Type))
-            {
-                _logger.LogWarning("Försök att skapa rum med ogiltig typ: {Type}", room.Type);
-                throw new InvalidRoomException("Ogiltig rumstyp");
-            }
-            if (room.RoomNumber <= 0)
-            {
-                _logger.LogWarning("Försök att skapa rum med ogiltigt rumsnummer: {RoomNumber}", room.RoomNumber);
-                throw new InvalidRoomException("Rumsnummer måste vara större än 0");
-            }
+            ValidateRoom(room);
+
             _context.Rooms.Add(room);
             _context.SaveChanges();
+
             _logger.LogInformation("Rummet med id {Id} skapades", room.Id);
             return room;
         }
@@ -61,16 +49,18 @@ namespace hotelbooking.Services
                 _logger.LogWarning("Rummet med id {Id} hittades inte", id);
                 throw new RoomNotFoundException($"Rummet med id {id} hittades inte");
             }
-            
-                existingRoom.Price = room.Price;
-                existingRoom.Type = room.Type;
-                existingRoom.RoomNumber = room.RoomNumber;
-                existingRoom.Description = room.Description;
 
-                _context.SaveChanges();
-                _logger.LogInformation("Rummet med id {Id} uppdaterades", existingRoom.Id);
+            ValidateRoom(room);
 
-             return existingRoom;           
+            existingRoom.Price = room.Price;
+            existingRoom.Type = room.Type;
+            existingRoom.RoomNumber = room.RoomNumber;
+            existingRoom.Description = room.Description;
+
+            _context.SaveChanges();
+            _logger.LogInformation("Rummet med id {Id} uppdaterades", existingRoom.Id);
+
+          return existingRoom;           
         }
         public bool DeleteRoom(int id)
         {
@@ -86,6 +76,29 @@ namespace hotelbooking.Services
             _logger.LogInformation("Rummet med id {id} togs bort", id);
 
             return true;
+        }
+        private void ValidateRoom(Room room)
+        {
+            if (room.Price <= 0)
+            {
+                _logger.LogWarning("Försök att spara rum med ogiltigt pris: {Price}", room.Price);
+                throw new InvalidRoomException("Pris måste vara större än 0");
+            }
+            if (!Enum.IsDefined(room.Type))
+            {
+                _logger.LogWarning("Försök att spara rum med ogiltig typ: {Type}", room.Type);
+                throw new InvalidRoomException("Ogiltig rumstyp");
+            }
+            if (room.RoomNumber <= 0)
+            {
+                _logger.LogWarning("Försök att spara rum med ogiltigt rumsnummer: {RoomNumber}", room.RoomNumber);
+                throw new InvalidRoomException("Rumsnummer måste vara större än 0");
+            }
+            if (string.IsNullOrWhiteSpace(room.Description))
+            {
+                _logger.LogWarning("Försök att spara rum utan beskrivning");
+                throw new InvalidRoomException("Beskrivning måste anges");
+            }   
         }
 
     }
