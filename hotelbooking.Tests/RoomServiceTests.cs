@@ -308,7 +308,7 @@ namespace hotelbooking.Tests
             Assert.Equal("Beskrivning måste anges", exception.Message);
         }
         [Fact]
-        public void DeleteRoomShouldDeleteRoom()
+        public void DeleteRoomShouldSetRoomNotActive()
         {
             var room = new Room
             {
@@ -325,8 +325,8 @@ namespace hotelbooking.Tests
             Assert.True(deleted);
 
             var deletedRoom = _context.Rooms.FirstOrDefault(r => r.Id == room.Id);
-
-            Assert.Null(deletedRoom);
+            Assert.NotNull(deletedRoom);
+            Assert.False(deletedRoom.IsActive);
         }
         [Fact]
         public void DeleteRoomShouldReturnFalseWhenRoomDoesNotExist()

@@ -67,13 +67,13 @@ namespace hotelbooking.Services
             Room? room = _context.Rooms.FirstOrDefault(r => r.Id == id);
             if (room == null)
             {
-                _logger.LogWarning("Rummet med id {id} hittades inte",id);
+                _logger.LogWarning("Rummet med id {Id} hittades inte",id);
                 return false;
             }
-            _context.Rooms.Remove(room);
+            room.IsActive = false;
             _context.SaveChanges();
 
-            _logger.LogInformation("Rummet med id {id} togs bort", id);
+            _logger.LogInformation("Rummet med id {Id} har blivit inaktiverat", id);
 
             return true;
         }
