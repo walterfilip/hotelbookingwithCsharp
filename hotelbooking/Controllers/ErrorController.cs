@@ -29,6 +29,14 @@ namespace hotelbooking.Controllers
             {
                 return BadRequest(exception.Message);
             }
+            if (exception is InvalidBookingException)
+            {
+                return BadRequest(exception.Message);
+            }
+            if (exception is RoomAlreadyBookedException)
+            {
+                return BadRequest(exception.Message);
+            }
             return Problem();
           
         }

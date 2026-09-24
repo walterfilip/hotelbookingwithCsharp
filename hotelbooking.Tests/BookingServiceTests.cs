@@ -50,8 +50,9 @@ namespace hotelbooking.Tests
             var booking = new Booking
             {
                 CustomerId = customer.Id,
-                RoomId = 1, // Assuming room with ID 1 exists
-              
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             };
 
             var result = _service.CreateBooking(booking);
@@ -135,6 +136,233 @@ namespace hotelbooking.Tests
                 () => _service.CreateBooking(booking));
             
             Assert.Equal($"Rum är inte aktivt", exception.Message);
+        }
+        [Fact]
+        public void CreateBookingShouldThrowExceptionWhenCheckOutIsBeforeCheckIn()
+        {
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            _context.Customers.Add(customer);
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = new DateOnly(2024, 6, 1),
+                CheckOut = new DateOnly(2024, 5, 1)
+            };
+
+            var exception = Assert.Throws<InvalidBookingException>(
+                () => _service.CreateBooking(booking));
+
+            Assert.Equal("Check-out datum måste vara efter check-in datum", exception.Message);
+        }
+        [Fact]
+        public void CreateBookingShouldThrowExceptionWhenCheckInIsInThePast()
+        {
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            _context.Customers.Add(customer);
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)), // Set to yesterday
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(1)) // Set to tomorrow
+            };
+
+            var exception = Assert.Throws<InvalidBookingException>(
+                () => _service.CreateBooking(booking));
+
+            Assert.Equal("Check-in datum kan inte vara i det förflutna", exception.Message);
+        }
+        [Fact]
+        public void CreateBookingShouldCalculateTotalPriceCorrectly()
+        {
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            _context.Customers.Add(customer);
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+            };
+
+            var result = _service.CreateBooking(booking);
+            
+
+            Assert.Equal(2000m, result.TotalPrice);
+        }
+        [Fact]
+        public void CreateBookingShouldThrowExceptionWhenRoomIsNull()
+        {
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = 999, // Non-existent room
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+            };
+
+            var exception = Assert.Throws<RoomNotFoundException>(
+                () => _service.CreateBooking(booking));
+
+            Assert.Equal($"Rum med id {booking.RoomId} finns ej", exception.Message);
+        }
+        [Fact]
+        public void CreateBookingShouldSaveBookingToDatabase()
+        {
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+            };
+
+            var result = _service.CreateBooking(booking);
+            var savedBooking = _context.Bookings.FirstOrDefault(b => b.Id == result.Id);
+
+            Assert.NotNull(result);            
+            Assert.NotNull(savedBooking);
+            Assert.Equal(result.Id, savedBooking.Id);
+            Assert.Equal(result.CustomerId, savedBooking.CustomerId);
+            Assert.Equal(result.RoomId, savedBooking.RoomId);
+            Assert.Equal(result.CheckIn, savedBooking.CheckIn);
+            Assert.Equal(result.CheckOut, savedBooking.CheckOut);
+            Assert.Equal(result.TotalPrice, savedBooking.TotalPrice);
+        }
+
+        [Fact]
+        public void CreateBookingShouldThrowExceptionWhenRoomIsAlreadyBooked()
+        {
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+            
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+            _context.Customers.Add(customer);
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var existingBooking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+            };
+            _context.Bookings.Add(existingBooking);
+            _context.SaveChanges();
+
+            var newBooking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(2)), // Overlaps with existing booking
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(4))
+            };
+
+            var exception = Assert.Throws<RoomAlreadyBookedException>(
+                () => _service.CreateBooking(newBooking));
+
+            Assert.Equal($"Rum med id {newBooking.RoomId} är redan bokat för de valda datumen", exception.Message);
+
+
         }
     }
 }

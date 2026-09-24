@@ -13,18 +13,34 @@ namespace hotelbooking.Services
             _context = context;
         }
 
-       public Booking CreateBooking(Booking booking)
+        public Booking CreateBooking(Booking booking)
         {
             Customer? customer = _context.Customers
                 .FirstOrDefault(c => c.Id == booking.CustomerId);
 
-            if(customer == null)
+            if (customer == null)
             {
                 throw new CustomerNotFoundException($"Kund med id {booking.CustomerId} finns ej");
             }
+
             Room? room = _context.Rooms
                 .FirstOrDefault(r => r.Id == booking.RoomId);
 
+            room = ValidateRoom(room, booking);
+            ValidateDates(booking);
+            ValidateRoomAvailability(booking);
+
+            int numberOfNights = booking.CheckOut.DayNumber - booking.CheckIn.DayNumber;
+            booking.TotalPrice = numberOfNights * room.Price;
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            return booking;
+        }
+
+        private Room ValidateRoom(Room? room, Booking booking)
+        {
             if (room == null)
             {
                 throw new RoomNotFoundException($"Rum med id {booking.RoomId} finns ej");
@@ -33,8 +49,31 @@ namespace hotelbooking.Services
             {
                 throw new InvalidRoomException($"Rum är inte aktivt");
             }
+            return room;
+        }
 
-            return booking;
+        private void ValidateDates(Booking booking)
+        {
+            if (booking.CheckOut <= booking.CheckIn)
+            {
+                throw new InvalidBookingException("Check-out datum måste vara efter check-in datum");
+            }
+            if (booking.CheckIn < DateOnly.FromDateTime(DateTime.Now))
+            {
+                throw new InvalidBookingException("Check-in datum kan inte vara i det förflutna");
+            }
+        }
+        private void ValidateRoomAvailability(Booking booking)
+        {
+            bool roomIsBooked = _context.Bookings.Any(
+                b => b.RoomId == booking.RoomId &&
+                b.CheckIn < booking.CheckOut &&
+                b.CheckOut > booking.CheckIn);
+            if(roomIsBooked)
+            {
+                throw new RoomAlreadyBookedException($"Rum med id {booking.RoomId} är redan bokat för de valda datumen");
+            }
+         
         }
     }
 }
