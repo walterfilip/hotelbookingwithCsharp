@@ -82,3 +82,18 @@ Content-Type: application/json
 ###
 
 DELETE https://localhost:7263/api/room/8
+
+###
+
+GET https://localhost:7263/api/booking/1
+
+###
+POST https://localhost:7263/api/booking
+Content-Type: application/json
+
+{
+    "customerId": 1,
+    "RoomId": 1,
+    "checkIn": "2026-09-25",
+    "CheckOut": "2026-09-27"
+}

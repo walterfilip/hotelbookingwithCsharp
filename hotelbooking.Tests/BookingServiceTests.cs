@@ -75,7 +75,7 @@ namespace hotelbooking.Tests
             var booking = new Booking
             {
                 CustomerId = 999, // Assuming customer with ID 999 does not exist
-                RoomId = room.Id 
+                RoomId = room.Id
             };
             var exception = Assert.Throws<CustomerNotFoundException>(
                 () => _service.CreateBooking(booking));
@@ -134,7 +134,7 @@ namespace hotelbooking.Tests
 
             var exception = Assert.Throws<InvalidRoomException>(
                 () => _service.CreateBooking(booking));
-            
+
             Assert.Equal($"Rum är inte aktivt", exception.Message);
         }
         [Fact]
@@ -241,7 +241,7 @@ namespace hotelbooking.Tests
             };
 
             var result = _service.CreateBooking(booking);
-            
+
 
             Assert.Equal(2000m, result.TotalPrice);
         }
@@ -307,7 +307,7 @@ namespace hotelbooking.Tests
             var result = _service.CreateBooking(booking);
             var savedBooking = _context.Bookings.FirstOrDefault(b => b.Id == result.Id);
 
-            Assert.NotNull(result);            
+            Assert.NotNull(result);
             Assert.NotNull(savedBooking);
             Assert.Equal(result.Id, savedBooking.Id);
             Assert.Equal(result.CustomerId, savedBooking.CustomerId);
@@ -326,7 +326,7 @@ namespace hotelbooking.Tests
                 LastName = "Doe",
                 Email = "john.doe@example.com"
             };
-            
+
             var room = new Room
             {
                 RoomNumber = 101,
@@ -361,8 +361,134 @@ namespace hotelbooking.Tests
                 () => _service.CreateBooking(newBooking));
 
             Assert.Equal($"Rum med id {newBooking.RoomId} är redan bokat för de valda datumen", exception.Message);
+        }
+        [Fact]
+        public void CreateBookingShouldBeAbleToBookRoomWithoutOverlap()
+        {
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
 
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+            var firstBooking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+            };
+            _context.Rooms.Add(room);
+            _context.Bookings.Add(firstBooking);
+            _context.SaveChanges();
 
+            var secondBooking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(3)), // Starts after the first booking ends
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(5))
+            };
+
+            var result = _service.CreateBooking(secondBooking);
+            Assert.NotNull(result);
+
+            var savedBooking = _context.Bookings.FirstOrDefault(b => b.Id == result.Id);
+            Assert.NotNull(savedBooking);
+
+            Assert.Equal(secondBooking.CustomerId, savedBooking.CustomerId);
+            Assert.Equal(secondBooking.RoomId, savedBooking.RoomId);
+            Assert.Equal(secondBooking.CheckIn, savedBooking.CheckIn);
+            Assert.Equal(secondBooking.CheckOut, savedBooking.CheckOut);
+        }
+        [Fact]
+        public void CreateBookingShouldThrowExceptionWhenRoomBookingOverlaps()
+        {
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var firstBooking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+            };            
+            _context.Bookings.Add(firstBooking);
+            _context.SaveChanges();
+
+            var newBooking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(2)), // Overlaps with existing booking
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(4))
+            };
+
+            var exception = Assert.Throws<RoomAlreadyBookedException>(
+                () => _service.CreateBooking(newBooking));
+
+            Assert.Equal($"Rum med id {newBooking.RoomId} är redan bokat för de valda datumen", exception.Message);
+        }
+        [Fact]
+        public void CreateBookingShouldThrowExceptionWhenRoomIsNullInValidateRoom()
+        {
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+         
+
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+            _context.Customers.Add(customer);
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = 999 // Non-existent room
+            };
+            var exception = Assert.Throws<RoomNotFoundException>(
+                () => _service.CreateBooking(booking));
+            Assert.Equal($"Rum med id {booking.RoomId} finns ej", exception.Message);
         }
     }
 }

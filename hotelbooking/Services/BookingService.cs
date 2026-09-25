@@ -12,6 +12,22 @@ namespace hotelbooking.Services
         {
             _context = context;
         }
+        public List<Booking> GetAllBookings()
+        {
+            return _context.Bookings.ToList();
+        }
+
+        public Booking? GetBookingById(int id)
+        {
+            var booking = _context.Bookings.FirstOrDefault(b => b.Id == id);
+
+            if (booking == null)
+            {
+                throw new BookingNotFoundException($"Bokning med id {id} finns ej");
+            }
+
+            return booking;
+        }
 
         public Booking CreateBooking(Booking booking)
         {

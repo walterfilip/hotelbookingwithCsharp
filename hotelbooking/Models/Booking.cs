@@ -8,7 +8,7 @@
         public Customer? Customer { get; set; }
 
         public int RoomId { get; set; }
-        public Room Room { get; set; } = null!;
+        public Room? Room { get; set; } 
         public DateOnly CheckIn { get; set; }
         public DateOnly CheckOut { get; set; }
 

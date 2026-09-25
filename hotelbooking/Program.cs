@@ -25,6 +25,7 @@ namespace hotelbooking
                 ));
             builder.Services.AddScoped<CustomerService>();
             builder.Services.AddScoped<RoomService>();
+            builder.Services.AddScoped<BookingService>();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
