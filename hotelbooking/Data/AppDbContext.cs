@@ -16,6 +16,24 @@ namespace hotelbooking.Data
             modelBuilder.Entity<Room>()
                 .Property(r => r.IsActive)
                 .HasDefaultValue(true);
+
+            modelBuilder.Entity<Booking>()
+                .Property(b => b.CheckIn)
+                .HasConversion(
+                    dateOnly => dateOnly.ToDateTime(TimeOnly.MinValue),
+                    dateTime => DateOnly.FromDateTime(dateTime))
+                .HasColumnType("date");
+
+            modelBuilder.Entity<Booking>()
+                .Property(b => b.CheckOut)
+                .HasConversion(
+                    dateOnly => dateOnly.ToDateTime(TimeOnly.MinValue),
+                    dateTime => DateOnly.FromDateTime(dateTime))
+                .HasColumnType("date");
+
+            modelBuilder.Entity<Booking>()
+                .Property(b => b.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
     

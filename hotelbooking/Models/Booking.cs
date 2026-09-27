@@ -1,5 +1,12 @@
 ﻿namespace hotelbooking.Models
 {
+
+    public enum BookingStatus
+    {
+        Active,
+        Completed,
+        Cancelled
+    }   
     public class Booking
     {
         public int Id { get; set; } 
@@ -13,5 +20,8 @@
         public DateOnly CheckOut { get; set; }
 
         public decimal TotalPrice { get; set; }
+        public BookingStatus Status { get; set; } = BookingStatus.Active;
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset? CancelledAt { get; set; } 
     }
 }

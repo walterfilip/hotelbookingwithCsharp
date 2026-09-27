@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using hotelbooking.Data;
 
@@ -10,9 +11,11 @@ using hotelbooking.Data;
 namespace hotelbooking.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260927195857_BookingStatus")]
+    partial class BookingStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,19 +28,11 @@ namespace hotelbooking.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset?>("CancelledAt")
-                        .HasColumnType("datetime");
-
-                    b.Property<DateTime>("CheckIn")
+                    b.Property<DateOnly>("CheckIn")
                         .HasColumnType("date");
 
-                    b.Property<DateTime>("CheckOut")
+                    b.Property<DateOnly>("CheckOut")
                         .HasColumnType("date");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int?>("CustomerId")
                         .HasColumnType("int");

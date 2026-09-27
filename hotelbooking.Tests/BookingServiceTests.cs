@@ -490,5 +490,160 @@ namespace hotelbooking.Tests
                 () => _service.CreateBooking(booking));
             Assert.Equal($"Rum med id {booking.RoomId} finns ej", exception.Message);
         }
+        [Fact]
+        public void CanecelBookingShouldSetStatusToCancelled()
+        {
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = 1,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 1500,
+                Status = BookingStatus.Active
+            };
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var cancelledBooking = _service.CancelBooking(booking.Id);
+            Assert.Equal(BookingStatus.Cancelled, cancelledBooking.Status);
+
+        }
+        [Fact] 
+        public void CancelBookingShouldThrowExceptionWhenBookingDoesNotExist()
+        {
+            var exception = Assert.Throws<BookingNotFoundException>(
+                () => _service.CancelBooking(999)); // Assuming booking with ID 999 does not exist
+
+            Assert.Equal($"Bokning med id 999 finns ej", exception.Message);
+        }
+        [Fact]
+        public void CancelBookingShouldSetCancelledAtToCurrentTime()
+        {
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = 1,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 1500,
+                Status = BookingStatus.Active
+            };
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var cancelledBooking = _service.CancelBooking(booking.Id);
+
+            Assert.NotNull(cancelledBooking.CancelledAt);
+            Assert.True(cancelledBooking.CancelledAt <= DateTimeOffset.UtcNow);
+            Assert.Equal(BookingStatus.Cancelled, cancelledBooking.Status);
+        }
+        [Fact]
+        public void CancelBookingShouldSaveChangesToDatabase()
+        {
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = 1,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 1500,
+                Status = BookingStatus.Active
+            };
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var cancelledBooking = _service.CancelBooking(booking.Id);
+            var savedBooking = _context.Bookings.FirstOrDefault(b => b.Id == booking.Id);
+
+            Assert.NotNull(savedBooking);
+            Assert.Equal(BookingStatus.Cancelled, savedBooking.Status);
+            Assert.NotNull(savedBooking.CancelledAt);
+        }
+        [Fact]
+        public void CancelBookingShouldThrowExceptionWhenBookingIsAlreadyCancelled()
+        {
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = 1,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 1500,
+                Status = BookingStatus.Cancelled,
+                CancelledAt = DateTimeOffset.UtcNow
+            };
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var exception = Assert.Throws<InvalidBookingException>(
+                () => _service.CancelBooking(booking.Id));
+
+            Assert.Equal($"Bokning med id {booking.Id} är redan avbokad", exception.Message);
+        }
+        [Fact]
+        public void CancelBookingShouldThorwExceptionWhenBookingIsAlreadyCompleted()
+        {
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = 1,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(-3)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)),
+                TotalPrice = 1500,
+                Status = BookingStatus.Completed
+            };
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var exception = Assert.Throws<InvalidBookingException>(
+                () => _service.CancelBooking(booking.Id));
+
+            Assert.Equal($"Bokning med id {booking.Id} är redan slutförd och kan inte avbokas", exception.Message);
+        }
+        [Fact]
+        public void CancelBookingShouldThrowExceptionWhenBookingAlreadyStarted()
+        {
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = 1,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
+                TotalPrice = 1500,
+                Status = BookingStatus.Active
+            };
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var exception = Assert.Throws<InvalidBookingException>(
+                () => _service.CancelBooking(booking.Id));
+
+            Assert.Equal($"Bokning med id {booking.Id} har redan börjat och kan inte avbokas", exception.Message);
+        }
+        [Fact]
+        public void UpdateBookingStatusShouldSetCompletedWhenCheckOutHasPassed()
+        {
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = 1,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(-3)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)),
+                TotalPrice = 1500,
+                Status = BookingStatus.Active
+            };
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            _service.UpdateBookingStatus(booking);
+
+            var updatedBooking = _context.Bookings.FirstOrDefault(b => b.Id == booking.Id);
+
+    //        Assert.NotNull(updatedBooking);
+            Assert.Equal(BookingStatus.Completed, updatedBooking.Status);
+        }
     }
 }

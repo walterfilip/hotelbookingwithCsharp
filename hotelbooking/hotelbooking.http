@@ -94,6 +94,6 @@ Content-Type: application/json
 {
     "customerId": 1,
     "RoomId": 1,
-    "checkIn": "2026-09-25",
-    "CheckOut": "2026-09-27"
+    "checkIn": "2026-09-28",
+    "CheckOut": "2026-09-30"
 }

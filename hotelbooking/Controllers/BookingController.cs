@@ -39,7 +39,11 @@ namespace hotelbooking.Controllers
 
             return CreatedAtAction(nameof(GetBooking), new { id = newBooking.Id }, newBooking);
         }
-
-
+        [HttpPut("{id}/cancel")]
+        public ActionResult<Booking> CancelBooking(int id)
+        {
+            var cancelledBooking = _bookingService.CancelBooking(id);
+            return Ok(cancelledBooking);
+        }
     }
 }

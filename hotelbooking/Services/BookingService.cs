@@ -54,6 +54,34 @@ namespace hotelbooking.Services
 
             return booking;
         }
+        public Booking CancelBooking(int id)
+        {
+            Booking? booking = _context.Bookings.FirstOrDefault(b => b.Id == id);
+
+            if (booking == null) 
+            {
+                throw new BookingNotFoundException($"Bokning med id {id} finns ej");
+            }
+            if(booking.Status == BookingStatus.Cancelled)
+            {
+                throw new InvalidBookingException($"Bokning med id {id} är redan avbokad");
+            }
+            if (booking.Status == BookingStatus.Completed)
+            {
+                throw new InvalidBookingException($"Bokning med id {id} är redan slutförd och kan inte avbokas");
+            }
+            if (booking.CheckIn <= DateOnly.FromDateTime(DateTime.Now))
+            {
+                throw new InvalidBookingException($"Bokning med id {id} har redan börjat och kan inte avbokas");
+            }
+
+            booking.Status = BookingStatus.Cancelled;
+            booking.CancelledAt = DateTimeOffset.UtcNow;
+
+            _context.SaveChanges();
+
+            return booking;
+        }
 
         private Room ValidateRoom(Room? room, Booking booking)
         {
@@ -90,6 +118,14 @@ namespace hotelbooking.Services
                 throw new RoomAlreadyBookedException($"Rum med id {booking.RoomId} är redan bokat för de valda datumen");
             }
          
+        }
+        public void UpdateBookingStatus(Booking booking)
+        {
+            if (booking.Status == BookingStatus.Active && booking.CheckOut < DateOnly.FromDateTime(DateTime.Now))
+            {
+                booking.Status = BookingStatus.Completed;
+
+            }
         }
     }
 }
