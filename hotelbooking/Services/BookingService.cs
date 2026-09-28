@@ -7,10 +7,12 @@ namespace hotelbooking.Services
     public class BookingService
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<BookingService> _logger;
 
-        public BookingService(AppDbContext context)
+        public BookingService(AppDbContext context, ILogger<BookingService> logger)
         {
             _context = context;
+            _logger = logger;
         }
         public List<Booking> GetAllBookings()
         {
@@ -124,8 +126,21 @@ namespace hotelbooking.Services
             if (booking.Status == BookingStatus.Active && booking.CheckOut < DateOnly.FromDateTime(DateTime.Now))
             {
                 booking.Status = BookingStatus.Completed;
+                _logger.LogInformation("Bokning med id {Id} har markerats som slutförd",booking.Id);
 
             }
+        }
+        public void UpdateExpiredBookings()
+        {
+            var bookings = _context.Bookings
+                .Where(b => b.Status == BookingStatus.Active)
+                .ToList();
+
+            foreach (var booking in bookings)
+            {
+                UpdateBookingStatus(booking);
+            }
+            _context.SaveChanges();
         }
     }
 }

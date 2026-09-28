@@ -4,9 +4,11 @@ using hotelbooking.Services;
 using hotelbooking.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace hotelbooking.Tests
 {
@@ -23,7 +25,8 @@ namespace hotelbooking.Tests
             .Options;
 
             _context = new AppDbContext(options);
-            _service = new BookingService(_context);
+            var logger = NullLogger<BookingService>.Instance;
+            _service = new BookingService(_context, logger);
         }
 
         [Fact]
@@ -642,7 +645,7 @@ namespace hotelbooking.Tests
 
             var updatedBooking = _context.Bookings.FirstOrDefault(b => b.Id == booking.Id);
 
-    //        Assert.NotNull(updatedBooking);
+             Assert.NotNull(updatedBooking);
             Assert.Equal(BookingStatus.Completed, updatedBooking.Status);
         }
     }
