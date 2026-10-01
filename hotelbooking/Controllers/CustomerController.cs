@@ -50,12 +50,8 @@ namespace hotelbooking.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteCustomer(int id)
         {
-            bool deleted = _customerService.DeleteCustomer(id);
+            _customerService.DeleteCustomer(id);
 
-            if (!deleted)
-            {
-                return NotFound();
-            }
             return NoContent();
         }
     }

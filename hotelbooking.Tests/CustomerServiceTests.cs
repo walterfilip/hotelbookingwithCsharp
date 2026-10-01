@@ -199,8 +199,8 @@ namespace hotelbooking.Tests
 
             var createdCustomer = _service.CreateCustomer(customer);
 
-            var deleted = _service.DeleteCustomer(createdCustomer.Id);
-            Assert.True(deleted);
+           _service.DeleteCustomer(createdCustomer.Id);
+           
 
             var deletedCustomer = Assert.Throws<CustomerNotFoundException>(() => _service.GetCustomer(createdCustomer.Id));
             Assert.Equal($"Kund med id {createdCustomer.Id} finns ej", deletedCustomer.Message);
@@ -209,10 +209,11 @@ namespace hotelbooking.Tests
         [Fact]
         public void DeleteCustomerShouldReturnFalseWhenCustomerDoesNotExist()
         {
-            var result = _service.DeleteCustomer(999);
-
-            Assert.False(result);
+            var exception = Assert.Throws<CustomerNotFoundException>(() => _service.DeleteCustomer(999));
+           
+            Assert.Equal($"Kund med id 999 finns ej", exception.Message);
         }
+
         [Fact]
         public void GetAllCustomersShouldReturnAllCustomers()
         {
@@ -240,6 +241,47 @@ namespace hotelbooking.Tests
             var result = _service.GetAllCustomers();
 
             Assert.Empty(result);
+        }
+        [Fact]
+        public void DeleteCustomerShouldThrowExceptionWhenCustomerHasActiveBookings()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var customer = new Customer
+            {
+                FirstName = "Janne",
+                LastName = "Svensson",
+                Email = "janne.svensson@example.com"
+            };
+
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Active
+            };
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var exception = Assert.Throws<CustomerHasActiveBookingsException>(() => _service.DeleteCustomer(customer.Id));
+            Assert.Equal($"Kund med id {customer.Id} har aktiva bokningar", exception.Message);
         }
     }
 }

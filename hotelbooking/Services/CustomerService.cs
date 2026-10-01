@@ -48,16 +48,17 @@ namespace hotelbooking.Services
             try
             {
                 _logger.LogInformation("Skapar kund: {FirstName} {Email}", customer.FirstName, customer.Email);
-                            _context.Customers.Add(customer);
-                            _context.SaveChanges();
+                _context.Customers.Add(customer);
+                _context.SaveChanges();
 
-                            return customer;
-             }catch (Exception ex)
+                return customer;
+
+            }catch (Exception ex)
             {
                 _logger.LogError(ex, "Ett fel uppstod när kunden skulle sparas");
                 throw;
             }
-            }
+        }
             
 
         public Customer UpdateCustomer(int id, Customer customer)
@@ -86,19 +87,24 @@ namespace hotelbooking.Services
             return existingCustomer;
         }
 
-        public bool DeleteCustomer(int id)
+        public void DeleteCustomer(int id)
         {
             Customer? customer = _context.Customers.FirstOrDefault(c => c.Id == id);
 
             if(customer == null)
             {
-                return false;
+                throw new CustomerNotFoundException($"Kund med id {id} finns ej");
+            }
+
+            bool hasActiveBookings = _context.Bookings.Any(b => b.CustomerId == id && b.Status == BookingStatus.Active);
+
+            if (hasActiveBookings)
+            {
+                throw new CustomerHasActiveBookingsException($"Kund med id {id} har aktiva bokningar");
             }
 
             _context.Customers.Remove(customer);
-            _context.SaveChanges();
-
-            return true;
+            _context.SaveChanges();           
         }
     }
 }

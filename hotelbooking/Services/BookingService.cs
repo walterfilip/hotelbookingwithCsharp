@@ -20,7 +20,7 @@ namespace hotelbooking.Services
             return _context.Bookings.ToList();
         }
 
-        public Booking? GetBookingById(int id)
+        public Booking GetBookingById(int id)
         {
             var booking = _context.Bookings.FirstOrDefault(b => b.Id == id);
 
@@ -157,6 +157,7 @@ namespace hotelbooking.Services
         {
             bool roomIsBooked = _context.Bookings.Any(
                 b => b.RoomId == booking.RoomId &&
+                b.Status == BookingStatus.Active &&
                 b.CheckIn < booking.CheckOut &&
                 b.CheckOut > booking.CheckIn);
             if(roomIsBooked)
@@ -180,7 +181,7 @@ namespace hotelbooking.Services
             }
 
         }
-        public bool BookingHasStarted(Booking booking) 
+        private bool BookingHasStarted(Booking booking) 
         {
             return booking.CheckIn <= DateOnly.FromDateTime(DateTime.Now);        
         }
@@ -193,7 +194,7 @@ namespace hotelbooking.Services
 
             }
         }
-        public void UpdateExpiredBookings()
+        public void UpdateCompletedBookings()
         {
             var bookings = _context.Bookings
                 .Where(b => b.Status == BookingStatus.Active)

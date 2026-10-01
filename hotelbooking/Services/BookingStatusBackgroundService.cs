@@ -16,11 +16,10 @@
                     BookingService bookingService = 
                         scope.ServiceProvider.GetRequiredService<BookingService>();
 
-                    bookingService.UpdateExpiredBookings();
+                    bookingService.UpdateCompletedBookings();
 
-                }
-                // Perform background tasks here, such as checking booking statuses
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Delay for 1 minute
+                }               
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
         }
     }

@@ -40,7 +40,13 @@ namespace hotelbooking.Controllers
             if (exception is BookingNotFoundException)
             {
                 return NotFound(exception.Message);
+            }            
+            if (exception is CustomerHasActiveBookingsException)
+            {
+                return Conflict(exception.Message);
             }
+            
+            
             return Problem();
           
         }
