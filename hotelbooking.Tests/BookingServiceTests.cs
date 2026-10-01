@@ -2,6 +2,8 @@
 using hotelbooking.Models;
 using hotelbooking.Services;
 using hotelbooking.Exceptions;
+
+using hotelbooking.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -444,7 +446,7 @@ namespace hotelbooking.Tests
                 RoomId = room.Id,
                 CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
                 CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
-            };            
+            };
             _context.Bookings.Add(firstBooking);
             _context.SaveChanges();
 
@@ -470,7 +472,7 @@ namespace hotelbooking.Tests
                 LastName = "Doe",
                 Email = "john.doe@example.com"
             };
-         
+
 
             var room = new Room
             {
@@ -512,7 +514,7 @@ namespace hotelbooking.Tests
             Assert.Equal(BookingStatus.Cancelled, cancelledBooking.Status);
 
         }
-        [Fact] 
+        [Fact]
         public void CancelBookingShouldThrowExceptionWhenBookingDoesNotExist()
         {
             var exception = Assert.Throws<BookingNotFoundException>(
@@ -645,8 +647,316 @@ namespace hotelbooking.Tests
 
             var updatedBooking = _context.Bookings.FirstOrDefault(b => b.Id == booking.Id);
 
-             Assert.NotNull(updatedBooking);
+            Assert.NotNull(updatedBooking);
             Assert.Equal(BookingStatus.Completed, updatedBooking.Status);
+        }
+
+        [Fact]
+        public void UpdateBookingShouldChangeCheckInAndCheckOutDates()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 1500,
+                Status = BookingStatus.Active
+            };
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var changeRequest = new BookingChangeDateRequest
+            {
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(5))
+            };
+
+            _service.UpdateBooking(booking.Id, changeRequest);
+
+            var savedBooking = _context.Bookings.FirstOrDefault(b => b.Id == booking.Id);
+
+            Assert.NotNull(savedBooking);
+            Assert.Equal(changeRequest.CheckIn, savedBooking.CheckIn);
+            Assert.Equal(changeRequest.CheckOut, savedBooking.CheckOut);
+            Assert.Equal(3000m, savedBooking.TotalPrice);
+        }
+        [Fact]
+        public void UpdateBookingShouldThrowExceptionWhenDatesAreInvalid()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Good nice room",
+                IsActive = true
+            };
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Active
+            };
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var changeRequest = new BookingChangeDateRequest
+            {
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(5)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+            };
+
+            var exception = Assert.Throws<InvalidBookingException>(
+                () => _service.UpdateBooking(booking.Id, changeRequest));
+            Assert.Equal("Check-out datum måste vara efter check-in datum", exception.Message);
+
+        }
+        [Fact]
+        public void UpdateBookingShouldThrowExceptionWhenNewDatesAreAlreadyBooked()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Active
+            };
+
+            var otherBooking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(5)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(7)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Active
+            };
+
+            _context.Bookings.AddRange(booking, otherBooking);
+            _context.SaveChanges();
+
+            var changeRequest = new BookingChangeDateRequest
+            {
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(5)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(7))
+            };
+
+            var exception = Assert.Throws<RoomAlreadyBookedException>(
+                () => _service.UpdateBooking(booking.Id, changeRequest));
+
+            Assert.Equal(
+                $"Rum med id {room.Id} är redan bokat för de valda datumen",
+                exception.Message);
+        }
+        [Fact]
+        public void UpdateBookingShouldNotChangeBookingWhenDatesAreInvalid()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Active
+            };
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var originalCheckIn = booking.CheckIn;
+            var originalCheckOut = booking.CheckOut;
+
+            var changeRequest = new BookingChangeDateRequest
+            {
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(5)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+            };
+
+            Assert.Throws<InvalidBookingException>(() =>
+                _service.UpdateBooking(booking.Id, changeRequest));
+
+            var savedBooking = _context.Bookings
+                .FirstOrDefault(b => b.Id == booking.Id);
+
+            Assert.NotNull(savedBooking);
+            Assert.Equal(originalCheckIn, savedBooking.CheckIn);
+            Assert.Equal(originalCheckOut, savedBooking.CheckOut);
+        }
+        [Fact]
+        public void UpdateBookingShouldThrowExceptionWhenBookingAlreadyStarted()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Active
+            };
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var changeRequest = new BookingChangeDateRequest
+            {
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(5))
+            };
+
+            var exception = Assert.Throws<InvalidBookingException>(
+                () => _service.UpdateBooking(booking.Id, changeRequest));
+
+            Assert.Equal($"Bokning med id {booking.Id} har redan börjat och kan inte ändras", exception.Message);
+        }
+        [Fact]
+        public void UpdateBookingShouldThrowExceptionWhenBookingDoesNotExist()
+        {
+            var changeRequest = new BookingChangeDateRequest
+            {
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(5))
+            };
+
+            var exception = Assert.Throws<BookingNotFoundException>(
+                () => _service.UpdateBooking(999, changeRequest)); 
+
+            Assert.Equal($"Bokning med id 999 finns ej", exception.Message);
+        }
+        [Fact]
+        public void UpdateBookingShouldThrowExceptionWhenBookingIsCancelled()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Cancelled
+            };
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var changeRequest = new BookingChangeDateRequest
+            {
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(4)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(6))
+            };
+
+            var exception = Assert.Throws<InvalidBookingException>(
+                () => _service.UpdateBooking(booking.Id, changeRequest));
+
+            Assert.Equal($"Bokning med id {booking.Id} är avbokad och kan inte ändras", exception.Message);
+        }
+        [Fact]
+        public void UpdateBookingShouldThrowExceptionWhenBookingIsCompleted()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(-3)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Completed
+            };
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var changeRequest = new BookingChangeDateRequest
+            {
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(4)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(6))
+            };
+            var exception = Assert.Throws<InvalidBookingException>(
+                () => _service.UpdateBooking(booking.Id, changeRequest));
+
+            Assert.Equal($"Bokning med id {booking.Id} är slutförd och kan inte ändras", exception.Message);
         }
     }
 }

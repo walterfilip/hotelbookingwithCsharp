@@ -85,7 +85,7 @@ DELETE https://localhost:7263/api/room/8
 
 ###
 
-GET https://localhost:7263/api/booking/1
+GET https://localhost:7263/api/booking/3
 
 ###
 POST https://localhost:7263/api/booking
@@ -94,6 +94,20 @@ Content-Type: application/json
 {
     "customerId": 1,
     "RoomId": 1,
-    "checkIn": "2026-09-28",
-    "CheckOut": "2026-09-30"
+    "checkIn": "2026-10-03",
+    "CheckOut": "2026-10-05"
+  
+    
 }
+###
+PUT https://localhost:7263/api/booking/3
+Content-Type: application/json
+
+{  
+    "checkIn": "2026-10-07",
+    "CheckOut": "2026-10-10"
+}
+###
+PUT https://localhost:7263/api/booking/4/cancel
+Content-Type: application/json
+

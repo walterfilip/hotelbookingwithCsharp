@@ -1,5 +1,6 @@
 ﻿using hotelbooking.Services;
 using hotelbooking.Models;
+using hotelbooking.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace hotelbooking.Controllers
@@ -43,7 +44,15 @@ namespace hotelbooking.Controllers
         public ActionResult<Booking> CancelBooking(int id)
         {
             var cancelledBooking = _bookingService.CancelBooking(id);
+
             return Ok(cancelledBooking);
+        }
+        [HttpPut("{id}")]
+        public ActionResult<Booking> UpdateBooking(int id, BookingChangeDateRequest updateBooking)
+        {
+            var booking = _bookingService.UpdateBooking(id, updateBooking);
+
+            return Ok(booking);
         }
     }
 }

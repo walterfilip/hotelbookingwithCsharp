@@ -1,6 +1,7 @@
 ﻿using hotelbooking.Data;
 using hotelbooking.Models;
 using hotelbooking.Exceptions;
+using hotelbooking.DTOs;
 
 namespace hotelbooking.Services
 {
@@ -48,8 +49,7 @@ namespace hotelbooking.Services
             ValidateDates(booking);
             ValidateRoomAvailability(booking);
 
-            int numberOfNights = booking.CheckOut.DayNumber - booking.CheckIn.DayNumber;
-            booking.TotalPrice = numberOfNights * room.Price;
+            booking.TotalPrice = CalculateTotalPrice(booking.RoomId, booking.CheckIn, booking.CheckOut);
 
             _context.Bookings.Add(booking);
             _context.SaveChanges();
@@ -72,17 +72,61 @@ namespace hotelbooking.Services
             {
                 throw new InvalidBookingException($"Bokning med id {id} är redan slutförd och kan inte avbokas");
             }
-            if (booking.CheckIn <= DateOnly.FromDateTime(DateTime.Now))
+            if (BookingHasStarted(booking))
             {
                 throw new InvalidBookingException($"Bokning med id {id} har redan börjat och kan inte avbokas");
             }
-
+          
             booking.Status = BookingStatus.Cancelled;
             booking.CancelledAt = DateTimeOffset.UtcNow;
 
             _context.SaveChanges();
 
             return booking;
+        }
+        public Booking UpdateBooking(int id, BookingChangeDateRequest updatedBooking)
+        {
+            var existingBooking = _context.Bookings.FirstOrDefault(b => b.Id == id);
+
+            if (existingBooking == null)
+            {
+                throw new BookingNotFoundException($"Bokning med id {id} finns ej");
+            }
+            if(existingBooking.Status == BookingStatus.Cancelled)
+            {
+                throw new InvalidBookingException($"Bokning med id {id} är avbokad och kan inte ändras");
+            }
+            if(existingBooking.Status == BookingStatus.Completed)
+            {
+                throw new InvalidBookingException($"Bokning med id {id} är slutförd och kan inte ändras");
+            }
+            if (BookingHasStarted(existingBooking))
+            {
+                throw new InvalidBookingException($"Bokning med id {existingBooking.Id} har redan börjat och kan inte ändras");
+            }
+
+            var bookingToValidate = new Booking
+            {
+                Id = existingBooking.Id,
+                RoomId = existingBooking.RoomId,
+                CheckIn = updatedBooking.CheckIn,
+                CheckOut = updatedBooking.CheckOut,
+                Status = existingBooking.Status
+            };
+
+
+            ValidateDates(bookingToValidate);
+            ValidateRoomAvailabilityIgnoreCurrentBooking(bookingToValidate);
+
+
+            existingBooking.CheckIn = updatedBooking.CheckIn;
+            existingBooking.CheckOut = updatedBooking.CheckOut;
+            existingBooking.TotalPrice = CalculateTotalPrice(
+            existingBooking.RoomId, existingBooking.CheckIn, existingBooking.CheckOut);
+
+            _context.SaveChanges();
+
+            return existingBooking;
         }
 
         private Room ValidateRoom(Room? room, Booking booking)
@@ -121,6 +165,25 @@ namespace hotelbooking.Services
             }
          
         }
+        private void ValidateRoomAvailabilityIgnoreCurrentBooking(Booking booking)
+        {
+            bool roomIsBooked = _context.Bookings.Any(
+                b => b.Id != booking.Id &&
+                b.Status == BookingStatus.Active &&
+                b.RoomId == booking.RoomId &&
+                b.CheckIn < booking.CheckOut &&
+                b.CheckOut > booking.CheckIn);
+
+            if (roomIsBooked)
+            {
+                throw new RoomAlreadyBookedException($"Rum med id {booking.RoomId} är redan bokat för de valda datumen");
+            }
+
+        }
+        public bool BookingHasStarted(Booking booking) 
+        {
+            return booking.CheckIn <= DateOnly.FromDateTime(DateTime.Now);        
+        }
         public void UpdateBookingStatus(Booking booking)
         {
             if (booking.Status == BookingStatus.Active && booking.CheckOut < DateOnly.FromDateTime(DateTime.Now))
@@ -142,5 +205,22 @@ namespace hotelbooking.Services
             }
             _context.SaveChanges();
         }
+
+
+        private decimal CalculateTotalPrice(int roomId, DateOnly checkIn, DateOnly checkOut)
+        {
+            Room? room = _context.Rooms.FirstOrDefault(r => r.Id == roomId);
+
+            if (room == null)
+            {
+                throw new RoomNotFoundException($"Rum med id {roomId} finns ej");
+            }
+
+            int numberOfNights = checkOut.DayNumber - checkIn.DayNumber;
+
+            return numberOfNights * room.Price;        
+        }
+
+        
     }
 }
