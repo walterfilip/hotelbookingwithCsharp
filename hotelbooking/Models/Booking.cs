@@ -1,4 +1,6 @@
-﻿namespace hotelbooking.Models
+﻿using System.ComponentModel.DataAnnotations;
+namespace hotelbooking.Models
+
 {
 
     public enum BookingStatus
@@ -13,6 +15,13 @@
 
         public int? CustomerId { get; set; }
         public Customer? Customer { get; set; }
+        [MaxLength(100)]
+        public string CustomerFirstNameSnapshot { get; set; } = string.Empty;
+        [MaxLength(100)]
+        public string CustomerLastNameSnapshot { get; set; } = string.Empty;
+        [MaxLength(200)]
+        public string CustomerEmailSnapshot { get; set; } = string.Empty;
+
 
         public int RoomId { get; set; }
         public Room? Room { get; set; } 

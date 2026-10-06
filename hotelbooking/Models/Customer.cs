@@ -15,5 +15,6 @@ namespace hotelbooking.Models
         [EmailAddress]
         [MaxLength(200)]
         public string Email { get; set; } = string.Empty;
+      
     }
 }

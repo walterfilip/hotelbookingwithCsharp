@@ -18,6 +18,12 @@ namespace hotelbooking.Data
                 .HasDefaultValue(true);
 
             modelBuilder.Entity<Booking>()
+                .HasOne(b => b.Customer)
+                .WithMany()
+                .HasForeignKey(b => b.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Booking>()
                 .Property(b => b.CheckIn)
                 .HasConversion(
                     dateOnly => dateOnly.ToDateTime(TimeOnly.MinValue),

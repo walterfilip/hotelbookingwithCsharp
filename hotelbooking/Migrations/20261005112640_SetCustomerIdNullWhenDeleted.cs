@@ -1,0 +1,41 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace hotelbooking.Migrations
+{
+    /// <inheritdoc />
+    public partial class SetCustomerIdNullWhenDeleted : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Bookings_Customers_CustomerId",
+                table: "Bookings");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Bookings_Customers_CustomerId",
+                table: "Bookings",
+                column: "CustomerId",
+                principalTable: "Customers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.SetNull);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Bookings_Customers_CustomerId",
+                table: "Bookings");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Bookings_Customers_CustomerId",
+                table: "Bookings",
+                column: "CustomerId",
+                principalTable: "Customers",
+                principalColumn: "Id");
+        }
+    }
+}

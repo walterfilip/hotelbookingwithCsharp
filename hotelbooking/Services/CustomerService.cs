@@ -101,7 +101,7 @@ namespace hotelbooking.Services
             if (hasActiveBookings)
             {
                 throw new CustomerHasActiveBookingsException($"Kund med id {id} har aktiva bokningar");
-            }
+            }      
 
             _context.Customers.Remove(customer);
             _context.SaveChanges();           

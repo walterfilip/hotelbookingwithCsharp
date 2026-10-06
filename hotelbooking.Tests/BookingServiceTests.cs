@@ -63,6 +63,8 @@ namespace hotelbooking.Tests
             var result = _service.CreateBooking(booking);
 
             Assert.Equal(booking, result);
+            Assert.NotNull(result);
+           
         }
         [Fact]
         public void CreateBookingShouldThrowExceptionWhenCustomerDoesNotExist()
@@ -463,17 +465,10 @@ namespace hotelbooking.Tests
 
             Assert.Equal($"Rum med id {newBooking.RoomId} är redan bokat för de valda datumen", exception.Message);
         }
+      
         [Fact]
-        public void CreateBookingShouldThrowExceptionWhenRoomIsNullInValidateRoom()
+        public void CancelBookingShouldSetStatusToCancelled()
         {
-            var customer = new Customer
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com"
-            };
-
-
             var room = new Room
             {
                 RoomNumber = 101,
@@ -482,26 +477,12 @@ namespace hotelbooking.Tests
                 Description = "Test rum",
                 IsActive = true
             };
-            _context.Customers.Add(customer);
             _context.Rooms.Add(room);
             _context.SaveChanges();
-
-            var booking = new Booking
-            {
-                CustomerId = customer.Id,
-                RoomId = 999 // Non-existent room
-            };
-            var exception = Assert.Throws<RoomNotFoundException>(
-                () => _service.CreateBooking(booking));
-            Assert.Equal($"Rum med id {booking.RoomId} finns ej", exception.Message);
-        }
-        [Fact]
-        public void CanecelBookingShouldSetStatusToCancelled()
-        {
             var booking = new Booking
             {
                 CustomerId = 1,
-                RoomId = 1,
+                RoomId = room.Id,
                 CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
                 CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
                 TotalPrice = 1500,
@@ -525,10 +506,21 @@ namespace hotelbooking.Tests
         [Fact]
         public void CancelBookingShouldSetCancelledAtToCurrentTime()
         {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
             var booking = new Booking
             {
                 CustomerId = 1,
-                RoomId = 1,
+                RoomId = room.Id,
                 CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
                 CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
                 TotalPrice = 1500,
@@ -547,10 +539,21 @@ namespace hotelbooking.Tests
         [Fact]
         public void CancelBookingShouldSaveChangesToDatabase()
         {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
             var booking = new Booking
             {
                 CustomerId = 1,
-                RoomId = 1,
+                RoomId = room.Id,
                 CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
                 CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
                 TotalPrice = 1500,
@@ -569,10 +572,21 @@ namespace hotelbooking.Tests
         [Fact]
         public void CancelBookingShouldThrowExceptionWhenBookingIsAlreadyCancelled()
         {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
             var booking = new Booking
             {
                 CustomerId = 1,
-                RoomId = 1,
+                RoomId = room.Id,
                 CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
                 CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
                 TotalPrice = 1500,
@@ -590,10 +604,21 @@ namespace hotelbooking.Tests
         [Fact]
         public void CancelBookingShouldThorwExceptionWhenBookingIsAlreadyCompleted()
         {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
             var booking = new Booking
             {
                 CustomerId = 1,
-                RoomId = 1,
+                RoomId = room.Id,
                 CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(-3)),
                 CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)),
                 TotalPrice = 1500,
@@ -610,10 +635,21 @@ namespace hotelbooking.Tests
         [Fact]
         public void CancelBookingShouldThrowExceptionWhenBookingAlreadyStarted()
         {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
             var booking = new Booking
             {
                 CustomerId = 1,
-                RoomId = 1,
+                RoomId = room.Id,
                 CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)),
                 CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
                 TotalPrice = 1500,

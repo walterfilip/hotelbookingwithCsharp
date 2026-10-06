@@ -9,14 +9,14 @@ POST http://localhost:5298/api/customer
 Content-Type: application/json
 
 {
-    "firstName": "Inge",
+    "firstName": "Greger",
     "lastName": "Felsson",
-    "email": "unclear@hej.se"
+    "email": "errorman@jens.se"
 }
 
 ###
 
-GET http://localhost:5298/api/customer/12
+GET http://localhost:5298/api/customer/
 
 ###
 
@@ -29,7 +29,7 @@ Content-Type: application/json
 }
 
 ###
-DELETE https://localhost:7263/api/customer/5
+DELETE https://localhost:7263/api/customer/16
 
 ###
 PUT https://localhost:7263/api/customer/12
@@ -85,22 +85,22 @@ DELETE https://localhost:7263/api/room/8
 
 ###
 
-GET https://localhost:7263/api/booking/3
+GET https://localhost:7263/api/booking/
 
 ###
 POST https://localhost:7263/api/booking
 Content-Type: application/json
 
 {
-    "customerId": 1,
-    "RoomId": 1,
-    "checkIn": "2026-10-03",
-    "CheckOut": "2026-10-05"
+    "customerId": 16,
+    "RoomId": 2,
+    "checkIn": "2026-10-11",
+    "CheckOut": "2026-10-13"
   
     
 }
 ###
-PUT https://localhost:7263/api/booking/3
+PUT https://localhost:7263/api/booking/5
 Content-Type: application/json
 
 {  
@@ -108,6 +108,6 @@ Content-Type: application/json
     "CheckOut": "2026-10-10"
 }
 ###
-PUT https://localhost:7263/api/booking/4/cancel
+PUT https://localhost:7263/api/booking/3/cancel
 Content-Type: application/json
 

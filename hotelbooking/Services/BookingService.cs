@@ -2,6 +2,8 @@
 using hotelbooking.Models;
 using hotelbooking.Exceptions;
 using hotelbooking.DTOs;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace hotelbooking.Services
 {
@@ -17,12 +19,15 @@ namespace hotelbooking.Services
         }
         public List<Booking> GetAllBookings()
         {
-            return _context.Bookings.ToList();
+            return _context.Bookings.Include(b => b.Room).ToList();
+            
         }
 
         public Booking GetBookingById(int id)
         {
-            var booking = _context.Bookings.FirstOrDefault(b => b.Id == id);
+            var booking = _context.Bookings
+                .Include(b => b.Room)
+                .FirstOrDefault(b => b.Id == id);
 
             if (booking == null)
             {
@@ -49,6 +54,10 @@ namespace hotelbooking.Services
             ValidateDates(booking);
             ValidateRoomAvailability(booking);
 
+            booking.CustomerFirstNameSnapshot = customer.FirstName;
+            booking.CustomerLastNameSnapshot = customer.LastName;
+            booking.CustomerEmailSnapshot = customer.Email;
+
             booking.TotalPrice = CalculateTotalPrice(booking.RoomId, booking.CheckIn, booking.CheckOut);
 
             _context.Bookings.Add(booking);
@@ -58,7 +67,9 @@ namespace hotelbooking.Services
         }
         public Booking CancelBooking(int id)
         {
-            Booking? booking = _context.Bookings.FirstOrDefault(b => b.Id == id);
+            Booking? booking = _context.Bookings
+                .Include(b => b.Room)
+                .FirstOrDefault(b => b.Id == id);
 
             if (booking == null) 
             {
@@ -86,7 +97,9 @@ namespace hotelbooking.Services
         }
         public Booking UpdateBooking(int id, BookingChangeDateRequest updatedBooking)
         {
-            var existingBooking = _context.Bookings.FirstOrDefault(b => b.Id == id);
+            var existingBooking = _context.Bookings
+                .Include(b => b.Room)
+                .FirstOrDefault(b => b.Id == id);
 
             if (existingBooking == null)
             {
@@ -121,8 +134,8 @@ namespace hotelbooking.Services
 
             existingBooking.CheckIn = updatedBooking.CheckIn;
             existingBooking.CheckOut = updatedBooking.CheckOut;
-            existingBooking.TotalPrice = CalculateTotalPrice(
-            existingBooking.RoomId, existingBooking.CheckIn, existingBooking.CheckOut);
+            existingBooking.TotalPrice = CalculateTotalPrice(existingBooking.RoomId,
+                existingBooking.CheckIn, existingBooking.CheckOut);
 
             _context.SaveChanges();
 
@@ -160,6 +173,7 @@ namespace hotelbooking.Services
                 b.Status == BookingStatus.Active &&
                 b.CheckIn < booking.CheckOut &&
                 b.CheckOut > booking.CheckIn);
+
             if(roomIsBooked)
             {
                 throw new RoomAlreadyBookedException($"Rum med id {booking.RoomId} är redan bokat för de valda datumen");
@@ -220,6 +234,30 @@ namespace hotelbooking.Services
             int numberOfNights = checkOut.DayNumber - checkIn.DayNumber;
 
             return numberOfNights * room.Price;        
+        }
+
+        private BookingResponseDto ToDto(Booking booking)
+        {
+            Room? room = _context.Rooms.FirstOrDefault(r => r.Id == booking.RoomId);
+
+            return new BookingResponseDto
+            {
+                Id = booking.Id,
+                CustomerId = booking.CustomerId,
+                CustomerFirstNameSnapshot = booking.CustomerFirstNameSnapshot,
+                CustomerLastNameSnapshot = booking.CustomerLastNameSnapshot,
+                CustomerEmailSnapshot = booking.CustomerEmailSnapshot,
+                RoomId = booking.RoomId,
+                RoomNumber = room?.RoomNumber ?? 0,
+                RoomType = room?.Type.ToString() ?? string.Empty,
+                CheckIn = booking.CheckIn,
+                CheckOut = booking.CheckOut,
+                TotalPrice = booking.TotalPrice,
+                Status = booking.Status,
+                CreatedAt = booking.CreatedAt,
+                CancelledAt = booking.CancelledAt
+            };
+
         }
 
         

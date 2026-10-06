@@ -18,41 +18,63 @@ namespace hotelbooking.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Booking>> GetAllBookings()
+        public ActionResult<List<BookingResponseDto>> GetAllBookings()
         {
             var bookings = _bookingService.GetAllBookings();
+            var dtos = bookings.Select(ToDto).ToList();
 
-            return Ok(bookings);
+            return Ok(dtos);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Booking> GetBooking(int id)
+        public ActionResult<BookingResponseDto> GetBooking(int id)
         {
             var booking = _bookingService.GetBookingById(id);
-          
-            return Ok(booking);
+
+            return Ok(ToDto(booking));
         }
 
         [HttpPost]
-        public ActionResult<Booking> CreateBooking(Booking booking)
+        public ActionResult<BookingResponseDto> CreateBooking(Booking booking)
         {
             var newBooking = _bookingService.CreateBooking(booking);
+            var dto = ToDto(newBooking);
 
-            return CreatedAtAction(nameof(GetBooking), new { id = newBooking.Id }, newBooking);
+            return CreatedAtAction(nameof(GetBooking), new { id = dto.Id }, dto);
         }
         [HttpPut("{id}/cancel")]
-        public ActionResult<Booking> CancelBooking(int id)
+        public ActionResult<BookingResponseDto> CancelBooking(int id)
         {
             var cancelledBooking = _bookingService.CancelBooking(id);
 
-            return Ok(cancelledBooking);
+            return Ok(ToDto(cancelledBooking));
         }
         [HttpPut("{id}")]
-        public ActionResult<Booking> UpdateBooking(int id, BookingChangeDateRequest updateBooking)
+        public ActionResult<BookingResponseDto> UpdateBooking(int id, BookingChangeDateRequest updateBooking)
         {
             var booking = _bookingService.UpdateBooking(id, updateBooking);
 
-            return Ok(booking);
+            return Ok(ToDto(booking));
+        }
+        private BookingResponseDto ToDto(Booking booking)
+        {
+            return new BookingResponseDto
+            {
+                Id = booking.Id,
+                CustomerId = booking.CustomerId,
+                CustomerFirstNameSnapshot = booking.CustomerFirstNameSnapshot,
+                CustomerLastNameSnapshot = booking.CustomerLastNameSnapshot,
+                CustomerEmailSnapshot = booking.CustomerEmailSnapshot,
+                RoomId = booking.RoomId,
+                RoomNumber = booking.Room?.RoomNumber ?? 0,
+                RoomType = booking.Room?.Type.ToString() ?? string.Empty,
+                CheckIn = booking.CheckIn,
+                CheckOut = booking.CheckOut,
+                TotalPrice = booking.TotalPrice,
+                Status = booking.Status,
+                CreatedAt = booking.CreatedAt,
+                CancelledAt = booking.CancelledAt
+            };
         }
     }
 }
