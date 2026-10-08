@@ -110,4 +110,19 @@ Content-Type: application/json
 ###
 PUT https://localhost:7263/api/booking/3/cancel
 Content-Type: application/json
+###
+#docker
+POST http://localhost:8080/api/room
+Content-Type: application/json
 
+{
+    "roomNumber": 110,
+    "RoomType": "Single",
+    "price": 795,
+    "description": "heje",
+    "isactive": true
+}
+
+###
+
+GET http://localhost:8080/api/room/1
