@@ -18,7 +18,7 @@ namespace hotelbooking.Tests
     {
 
         private readonly AppDbContext _context;
-        private readonly BookingService _service;
+        private readonly BookingService _service; 
 
         public BookingServiceTests()
         {
@@ -81,7 +81,7 @@ namespace hotelbooking.Tests
 
             var booking = new Booking
             {
-                CustomerId = 999, // Assuming customer with ID 999 does not exist
+                CustomerId = 999, 
                 RoomId = room.Id
             };
             var exception = Assert.Throws<CustomerNotFoundException>(
@@ -105,7 +105,7 @@ namespace hotelbooking.Tests
             var booking = new Booking
             {
                 CustomerId = customer.Id,
-                RoomId = 999 // Assuming room with ID 999 does not exist
+                RoomId = 999 
             };
             var exception = Assert.Throws<RoomNotFoundException>(
                 () => _service.CreateBooking(booking));
@@ -127,7 +127,7 @@ namespace hotelbooking.Tests
                 Type = RoomType.Single,
                 Price = 1000,
                 Description = "Test rum",
-                IsActive = false // Set to false to test the exception
+                IsActive = false 
             };
             _context.Customers.Add(customer);
             _context.Rooms.Add(room);
@@ -207,8 +207,8 @@ namespace hotelbooking.Tests
             {
                 CustomerId = customer.Id,
                 RoomId = room.Id,
-                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)), // Set to yesterday
-                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(1)) // Set to tomorrow
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)), 
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(1)) 
             };
 
             var exception = Assert.Throws<InvalidBookingException>(
@@ -268,7 +268,7 @@ namespace hotelbooking.Tests
             var booking = new Booking
             {
                 CustomerId = customer.Id,
-                RoomId = 999, // Non-existent room
+                RoomId = 999, 
                 CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
                 CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
             };
@@ -499,7 +499,7 @@ namespace hotelbooking.Tests
         public void CancelBookingShouldThrowExceptionWhenBookingDoesNotExist()
         {
             var exception = Assert.Throws<BookingNotFoundException>(
-                () => _service.CancelBooking(999)); // Assuming booking with ID 999 does not exist
+                () => _service.CancelBooking(999)); 
 
             Assert.Equal($"Bokning med id 999 finns ej", exception.Message);
         }
@@ -665,7 +665,7 @@ namespace hotelbooking.Tests
             Assert.Equal($"Bokning med id {booking.Id} har redan börjat och kan inte avbokas", exception.Message);
         }
         [Fact]
-        public void UpdateBookingStatusShouldSetCompletedWhenCheckOutHasPassed()
+        public void UpdateCompletedBookingsShouldSetCompletedWhenCheckOutHasPassed()
         {
             var booking = new Booking
             {
@@ -1128,6 +1128,57 @@ namespace hotelbooking.Tests
             Assert.Equal("John", updatedBooking.CustomerFirstNameSnapshot);
             Assert.Equal("Doe", updatedBooking.CustomerLastNameSnapshot);
             Assert.Equal("john.doe@example.com", updatedBooking.CustomerEmailSnapshot);
+        }
+        [Fact]
+        public void DeleteCustomerShouldKeepBookingWithCustomerSnapshot()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+
+            _context.Rooms.Add(room);
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+            };
+
+            var savedBooking = _service.CreateBooking(booking);
+
+            _context.Customers.Remove(customer);
+           
+            _context.SaveChanges();
+
+            var deletedCustomer = _context.Customers
+                .FirstOrDefault(c => c.Id == customer.Id);
+
+            var savedBookingAfterDelete = _context.Bookings
+                .FirstOrDefault(b => b.Id == savedBooking.Id);
+
+            Assert.Null(deletedCustomer);
+            Assert.NotNull(savedBookingAfterDelete);
+            Assert.Null(savedBookingAfterDelete.CustomerId);
+
+            Assert.Equal("John", savedBookingAfterDelete.CustomerFirstNameSnapshot);
+            Assert.Equal("Doe", savedBookingAfterDelete.CustomerLastNameSnapshot);
+            Assert.Equal("john.doe@example.com", savedBookingAfterDelete.CustomerEmailSnapshot);
         }
     }
 }
