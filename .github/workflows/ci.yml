@@ -20,4 +20,4 @@ jobs:
         run: dotnet restore hotelbooking.Tests/hotelbooking.Tests.csproj
 
       - name: Test
-        run: dotnet test hotelbooking.Tests/hotelbooking.Tests.csproj --no-restore
+        run: dotnet test --project hotelbooking.Tests/hotelbooking.Tests.csproj --no-restore

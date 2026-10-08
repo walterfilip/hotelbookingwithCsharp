@@ -1,8 +1,10 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/ci.yml" />
     <File Path=".gitignore" />
     <File Path="docker-compose.yml" />
     <File Path="Dockerfile" />
+    <File Path="global.json" />
   </Folder>
   <Project Path="hotelbooking.Tests/hotelbooking.Tests.csproj" Id="499d1b97-5356-4dcf-8c5b-d5ddce88f696" />
   <Project Path="hotelbooking/hotelbooking.csproj" />
