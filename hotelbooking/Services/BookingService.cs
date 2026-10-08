@@ -199,15 +199,7 @@ namespace hotelbooking.Services
         {
             return booking.CheckIn <= DateOnly.FromDateTime(DateTime.Now);        
         }
-        public void UpdateBookingStatus(Booking booking)
-        {
-            if (booking.Status == BookingStatus.Active && booking.CheckOut < DateOnly.FromDateTime(DateTime.Now))
-            {
-                booking.Status = BookingStatus.Completed;
-                _logger.LogInformation("Bokning med id {Id} har markerats som slutförd",booking.Id);
 
-            }
-        }
         public void UpdateCompletedBookings()
         {
             var bookings = _context.Bookings
@@ -216,11 +208,16 @@ namespace hotelbooking.Services
 
             foreach (var booking in bookings)
             {
-                UpdateBookingStatus(booking);
+                if (booking.CheckOut < DateOnly.FromDateTime(DateTime.Now))
+                {
+                    booking.Status = BookingStatus.Completed;
+                    _logger.LogInformation("Bokning med id {Id} har markerats som slutförd", booking.Id);
+
+                }
+              
             }
             _context.SaveChanges();
         }
-
 
         private decimal CalculateTotalPrice(int roomId, DateOnly checkIn, DateOnly checkOut)
         {
@@ -235,31 +232,6 @@ namespace hotelbooking.Services
 
             return numberOfNights * room.Price;        
         }
-
-        private BookingResponseDto ToDto(Booking booking)
-        {
-            Room? room = _context.Rooms.FirstOrDefault(r => r.Id == booking.RoomId);
-
-            return new BookingResponseDto
-            {
-                Id = booking.Id,
-                CustomerId = booking.CustomerId,
-                CustomerFirstNameSnapshot = booking.CustomerFirstNameSnapshot,
-                CustomerLastNameSnapshot = booking.CustomerLastNameSnapshot,
-                CustomerEmailSnapshot = booking.CustomerEmailSnapshot,
-                RoomId = booking.RoomId,
-                RoomNumber = room?.RoomNumber ?? 0,
-                RoomType = room?.Type.ToString() ?? string.Empty,
-                CheckIn = booking.CheckIn,
-                CheckOut = booking.CheckOut,
-                TotalPrice = booking.TotalPrice,
-                Status = booking.Status,
-                CreatedAt = booking.CreatedAt,
-                CancelledAt = booking.CancelledAt
-            };
-
-        }
-
-        
+                
     }
 }

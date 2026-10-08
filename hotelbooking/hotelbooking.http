@@ -47,7 +47,7 @@ GET https://localhost:7263/api/room
 
 ###
 
-GET https://localhost:7263/api/room/1
+GET https://localhost:7263/api/room/
 
 ###
 POST https://localhost:7263/api/room
@@ -92,9 +92,9 @@ POST https://localhost:7263/api/booking
 Content-Type: application/json
 
 {
-    "customerId": 16,
+    "customerId": 1,
     "RoomId": 2,
-    "checkIn": "2026-10-11",
+    "CheckIn": "2026-10-11",
     "CheckOut": "2026-10-13"
   
     

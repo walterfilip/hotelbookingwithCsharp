@@ -1,0 +1,14 @@
+﻿using hotelbooking.Models;
+
+namespace hotelbooking.DTOs
+{
+    public class RoomResponseDto
+    {
+        public int Id { get; set; }
+        public int RoomNumber { get; set; }
+        public RoomType Type { get; set; }
+        public decimal Price { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
+    }
+}

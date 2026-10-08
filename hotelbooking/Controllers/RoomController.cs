@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using hotelbooking.Services;
+﻿using hotelbooking.DTOs;
 using hotelbooking.Models;
+using hotelbooking.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace hotelbooking.Controllers
 {
@@ -16,29 +17,31 @@ namespace hotelbooking.Controllers
         }
 
         [HttpGet]
-        public List<Room> GetAllRooms()
+        public ActionResult<List<RoomResponseDto>> GetAllRooms()
         {
-            return _roomService.GetAllRooms();
+            var rooms = _roomService.GetAllRooms();
+            return Ok(rooms.Select(ToDto).ToList());
         }
         [HttpGet("{id}")]
-        public ActionResult<Room> GetRoom(int id)
+        public ActionResult<RoomResponseDto> GetRoom(int id)
         {
-            Room room = _roomService.GetRoom(id);
+            var room = _roomService.GetRoom(id);
            
-            return Ok(room);
+            return Ok(ToDto(room));
         }
         [HttpPost]
-        public ActionResult<Room> CreateRoom(Room room)
+        public ActionResult<RoomResponseDto> CreateRoom(Room room)
         {
-            Room createdRoom = _roomService.CreateRoom(room);          
+            var createdRoom = _roomService.CreateRoom(room);
+            var dto = ToDto(createdRoom);
 
-            return CreatedAtAction(nameof(GetRoom), new { id = createdRoom.Id }, createdRoom);
+            return CreatedAtAction(nameof(GetRoom), new { id = dto.Id }, dto);
         }
         [HttpPut("{id}")]
-        public ActionResult<Room> UpdateRoom(int id, Room room)
+        public ActionResult<RoomResponseDto> UpdateRoom(int id, Room room)
         {
-            Room updateRoom = _roomService.UpdateRoom(id, room);
-            return Ok(updateRoom);
+            var updateRoom = _roomService.UpdateRoom(id, room);
+            return Ok(ToDto(updateRoom));
         }
 
         [HttpDelete("{id}")]
@@ -50,6 +53,19 @@ namespace hotelbooking.Controllers
                 return NotFound();
             }
             return NoContent();
+        }
+
+        private RoomResponseDto ToDto(Room room)
+        {
+            return new RoomResponseDto
+            {
+                Id = room.Id,
+                RoomNumber = room.RoomNumber,
+                Type = room.Type,
+                Price = room.Price,
+                Description = room.Description,
+                IsActive = room.IsActive
+            };
         }
     }
 }

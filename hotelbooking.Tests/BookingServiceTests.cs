@@ -64,7 +64,7 @@ namespace hotelbooking.Tests
 
             Assert.Equal(booking, result);
             Assert.NotNull(result);
-           
+
         }
         [Fact]
         public void CreateBookingShouldThrowExceptionWhenCustomerDoesNotExist()
@@ -465,7 +465,7 @@ namespace hotelbooking.Tests
 
             Assert.Equal($"Rum med id {newBooking.RoomId} är redan bokat för de valda datumen", exception.Message);
         }
-      
+
         [Fact]
         public void CancelBookingShouldSetStatusToCancelled()
         {
@@ -679,7 +679,7 @@ namespace hotelbooking.Tests
             _context.Bookings.Add(booking);
             _context.SaveChanges();
 
-            _service.UpdateBookingStatus(booking);
+            _service.UpdateCompletedBookings();
 
             var updatedBooking = _context.Bookings.FirstOrDefault(b => b.Id == booking.Id);
 
@@ -913,7 +913,7 @@ namespace hotelbooking.Tests
             };
 
             var exception = Assert.Throws<BookingNotFoundException>(
-                () => _service.UpdateBooking(999, changeRequest)); 
+                () => _service.UpdateBooking(999, changeRequest));
 
             Assert.Equal($"Bokning med id 999 finns ej", exception.Message);
         }
@@ -993,6 +993,141 @@ namespace hotelbooking.Tests
                 () => _service.UpdateBooking(booking.Id, changeRequest));
 
             Assert.Equal($"Bokning med id {booking.Id} är slutförd och kan inte ändras", exception.Message);
+        }
+        [Fact]
+        public void CanceledBookingShouldAllowRoomToBeBookedAfterPreviousBookingWasCancelled()
+        {
+         
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = 1,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Cancelled
+            };
+
+            _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var newBooking = new Booking
+            {
+                CustomerId = 2,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Active
+
+            };
+
+            _context.Bookings.Add(newBooking);
+            _context.SaveChanges();
+
+            var savedBooking = _context.Bookings.FirstOrDefault(b => b.Id == newBooking.Id);
+
+            Assert.NotNull(savedBooking);
+            Assert.Equal(BookingStatus.Active, savedBooking.Status);
+        }
+        [Fact]
+        public void CreateBookingShouldSaveCustomerSnapshot()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+
+            };
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+
+            _context.Rooms.Add(room);            
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                TotalPrice = 2000,
+                Status = BookingStatus.Active
+            };
+            
+            var savedBooking = _service.CreateBooking(booking);
+
+            Assert.NotNull(savedBooking);
+            Assert.Equal("John", savedBooking.CustomerFirstNameSnapshot);
+            Assert.Equal("Doe", savedBooking.CustomerLastNameSnapshot);
+            Assert.Equal("john.doe@example.com", savedBooking.CustomerEmailSnapshot);
+        }
+        [Fact]
+        public void CreateBookingShouldKeepCustomerSnapshotWhenCustomerIsUpdated()
+        {
+            var room = new Room
+            {
+                RoomNumber = 101,
+                Type = RoomType.Single,
+                Price = 1000,
+                Description = "Test rum",
+                IsActive = true
+            };
+
+            var customer = new Customer
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com"
+            };
+
+            _context.Rooms.Add(room);
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+
+            var booking = new Booking
+            {
+                CustomerId = customer.Id,
+                RoomId = room.Id,
+                CheckIn = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+            };
+
+            var savedBooking = _service.CreateBooking(booking);
+
+            customer.FirstName = "Jane";
+            customer.LastName = "Smith";
+            customer.Email = "jane.smith@example.com";
+
+            _context.SaveChanges();
+
+            var updatedBooking = _context.Bookings
+                .First(b => b.Id == savedBooking.Id);
+
+            Assert.Equal("John", updatedBooking.CustomerFirstNameSnapshot);
+            Assert.Equal("Doe", updatedBooking.CustomerLastNameSnapshot);
+            Assert.Equal("john.doe@example.com", updatedBooking.CustomerEmailSnapshot);
         }
     }
 }
