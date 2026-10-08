@@ -22,7 +22,7 @@ jobs:
       - name: Test
         run: dotnet test --project hotelbooking.Tests/hotelbooking.Tests.csproj --no-restore
 
- docker:
+docker:
     needs: build-and-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
