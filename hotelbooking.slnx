@@ -6,6 +6,9 @@
     <File Path="Dockerfile" />
     <File Path="global.json" />
   </Folder>
+  <Project Path="hotelbooking.App/hotelbooking.App.csproj" Id="f389d5e2-6a17-4017-8ced-47bca8e00a53">
+    <Deploy Solution="Debug|*" />
+  </Project>
   <Project Path="hotelbooking.Tests/hotelbooking.Tests.csproj" Id="499d1b97-5356-4dcf-8c5b-d5ddce88f696" />
   <Project Path="hotelbooking/hotelbooking.csproj" />
 </Solution>

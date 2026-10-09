@@ -282,6 +282,10 @@ namespace hotelbooking.Tests
 
             var exception = Assert.Throws<CustomerHasActiveBookingsException>(() => _service.DeleteCustomer(customer.Id));
             Assert.Equal($"Kund med id {customer.Id} har aktiva bokningar", exception.Message);
+
+            var customerAfterDeleteAttempt = _context.Customers.FirstOrDefault(c => c.Id == customer.Id);
+            Assert.NotNull(customerAfterDeleteAttempt);
         }
+    
     }
 }

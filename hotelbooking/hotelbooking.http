@@ -53,10 +53,10 @@ GET https://localhost:7263/api/room/
 POST https://localhost:7263/api/room
 Content-Type: application/json
 {
-    "roomNumber": 203,
+    "roomNumber": 102,
     "type": "Double",
     "price": 1275,
-    "description": ""
+    "description": "Fint rum"
 }
 
 ###
@@ -126,3 +126,12 @@ Content-Type: application/json
 ###
 
 GET http://localhost:8080/api/room/1
+###
+POST http://localhost:8080/api/room
+Content-Type: application/json
+{
+    "roomNumber": 102,
+    "type": "Double",
+    "price": 1275,
+    "description": "Fint rum"
+}
