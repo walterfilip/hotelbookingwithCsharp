@@ -1,32 +1,21 @@
 ﻿using System.Net.Http.Json;
 using hotelbooking.App.Models;
+using hotelbooking.App.ViewModels;
+
 namespace hotelbooking.App
 {
     public partial class MainPage : ContentPage
     {
-       
-        private static readonly HttpClient client = new();
-
+        private readonly RoomViewModel viewModel = new();
         public MainPage()
         {
             InitializeComponent();
+            BindingContext = viewModel;
         }
-
-        private async void OnCounterClicked(object? sender, EventArgs e)
+        protected override async void OnAppearing()
         {
-         try
-            {
-                var rooms = await client.GetFromJsonAsync<List<Room>>("http://localhost:8080/api/room");
-                Roomsview.ItemsSource = rooms;
-
-                ResultLabel.Text = "";
-                   // string.Join("\n",
-                   // (rooms ?? new List<Room>()).Select(r => $"Rum {r.RoomNumber} ({r.Type}) - {r.Price} kr"));
-            }
-            catch (Exception ex)
-            {
-                ResultLabel.Text = $"Fel: {ex.Message}";
-            }
+            base.OnAppearing();
+            await viewModel.LoadRoomsCommand.ExecuteAsync(null);
         }
     }
 }
