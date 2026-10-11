@@ -17,20 +17,22 @@ namespace hotelbooking.App.ViewModels
 
         [ObservableProperty]
         private string errorMessage = string.Empty;
+        [ObservableProperty]
+        private bool isBusy;
 
         [RelayCommand]
         private async Task LoadRoomsAsync()
         {
+            IsBusy = true;
             try
-            {
-                var rooms = await client.GetFromJsonAsync<List<Room>>("http://localhost:8080/api/room");
+            {               
+                var rooms = await client.GetFromJsonAsync<List<Room>>($"{ApiConfig.BaseUrl}/room");
+
                 Rooms.Clear();
-                              
                 foreach (var room in rooms ?? new List<Room>())
                 {
-                   Rooms.Add(room);
+                    Rooms.Add(room);
                 }
-                
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -38,6 +40,22 @@ namespace hotelbooking.App.ViewModels
                 Rooms.Clear();
                 ErrorMessage = $"Error: {ex.Message}";
             }
+            finally
+            {
+                IsBusy = false;
+
+            }
+        }
+
+        [RelayCommand]
+        private async Task GoToDetailsAsync(Room? room)
+        {
+            if (room is null)
+                return;
+            await Shell.Current.GoToAsync(nameof(RoomDetailPage), new Dictionary<string, object>
+            {
+                {"Room", room }
+            });
         }
     }
 }

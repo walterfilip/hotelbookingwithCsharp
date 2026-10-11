@@ -15,6 +15,7 @@ namespace hotelbooking.App
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+            RoomView.SelectedItem = null;
             await viewModel.LoadRoomsCommand.ExecuteAsync(null);
         }
     }

@@ -21,10 +21,17 @@
                 Text="Uppdatera rum" 
                 Command="{Binding LoadRoomsCommand}"
                 HorizontalOptions="Fill" />
-            
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}" />
+
             <Label Text="{Binding ErrorMessage}"/>
 
-            <CollectionView ItemsSource="{Binding Rooms}" HeightRequest="300">
+            <CollectionView x:Name="RoomView" 
+                            ItemsSource="{Binding Rooms}"
+                            SelectionMode="Single"
+                            SelectionChangedCommand="{Binding GoToDetailsCommand}"
+                            SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}">
+              
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Room">
                         <VerticalStackLayout Padding="0,1">

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hotelbooking.App.RoomDetailPage"
+             Title="Rumsinfo">
+    
+    
+    <VerticalStackLayout Padding="30" Spacing="10">
+        <Label Text="Rums information"      
+                 Style="{StaticResource Headline}"/>
+        <Label Text="{Binding Room.RoomNumber, StringFormat='Rumsnummer: {0}'}"/>
+        <Label Text="{Binding Room.Type, StringFormat='Rumstyp: {0}'}" />
+        <Label Text="{Binding Room.Description, StringFormat='Beskrivning: {0}'}" />
+        <Label Text="{Binding Room.Price, StringFormat='Pris: {0} kr / natt'}" />
+        <Button Text="Tillbaka" Command="{Binding GoBackCommand}" />
+    </VerticalStackLayout>
+</ContentPage>
