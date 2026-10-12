@@ -1,0 +1,8 @@
+<Label>
+    <Label.Text>
+        <MultiBinding StringFormat="Namn: {0} {1}">
+            <Binding Path="CustomerFirstNameSnapshot" />
+            <Binding Path="CustomerLastNameSnapshot" />
+        </MultiBinding>
+    </Label.Text>
+</Label>

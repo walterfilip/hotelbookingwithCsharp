@@ -6,9 +6,16 @@
     xmlns:local="clr-namespace:hotelbooking.App"
     Title="hotelbooking.App">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <ShellContent Title="Rum"
+                      ContentTemplate="{DataTemplate local:MainPage}"
+                      Route="MainPage"/>
+        <ShellContent Title="Bokningar"
+                      ContentTemplate="{DataTemplate local:BookingPage}"
+                      Route="BookingPage"/>
+        <ShellContent Title="Ny bokning"
+                      ContentTemplate="{DataTemplate local:CreateBookingPage}"
+                      Route="CreateBookingPage"/>
+    </TabBar>
 
 </Shell>

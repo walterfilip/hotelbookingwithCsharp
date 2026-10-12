@@ -135,3 +135,34 @@ Content-Type: application/json
     "price": 1275,
     "description": "Fint rum"
 }
+###
+POST http://localhost:8080/api/booking
+Content-Type: application/json
+
+{
+    "customerId": 1,
+    "RoomId": 2,
+    "CheckIn": "2026-10-15",
+    "CheckOut": "2026-10-19"
+  
+    
+}
+###
+POST http://localhost:8080/api/customer
+Content-Type: application/json
+
+{
+    "firstName": "Greger",
+    "lastName": "Felsson",
+    "email": "errorman@jens.se"
+}
+
+###
+POST http://localhost:8080/api/booking
+Content-Type: application/json
+{
+  "customerId": 1,
+  "roomId": 1,
+  "checkIn": "2026-11-01",
+  "checkOut": "2026-11-03"
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hotelbooking.App.CreateBookingPage"
+             Title="Ny bokning">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30,0" Spacing="15">
+
+            <Label Text="Ny bokning" Style="{StaticResource Headline}" />
+
+            <Label Text="Kund-id" />
+            <Entry Text="{Binding CustomerId}" Keyboard="Numeric" Placeholder="t.ex. 1" />
+
+            <Label Text="Rum-id" />
+            <Entry Text="{Binding RoomId}" Keyboard="Numeric" Placeholder="t.ex. 1" />
+
+            <Label Text="Incheckning" />
+            <DatePicker Date="{Binding CheckIn}" />
+
+            <Label Text="Utcheckning" />
+            <DatePicker Date="{Binding CheckOut}" />
+
+            <Button Text="Skapa bokning" Command="{Binding CreateBookingCommand}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}" />
+
+            <Label Text="{Binding Message}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

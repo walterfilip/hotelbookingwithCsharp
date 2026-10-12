@@ -35,8 +35,15 @@ namespace hotelbooking.Controllers
         }
 
         [HttpPost]
-        public ActionResult<BookingResponseDto> CreateBooking(Booking booking)
+        public ActionResult<BookingResponseDto> CreateBooking(BookingCreateRequest request)
         {
+            var booking = new Booking
+            {
+                CustomerId = request.CustomerId,
+                RoomId = request.RoomId,
+                CheckIn = request.CheckIn,
+                CheckOut = request.CheckOut
+            };
             var newBooking = _bookingService.CreateBooking(booking);
             var dto = ToDto(newBooking);
 

@@ -26,6 +26,11 @@ namespace hotelbooking.App
             builder.Services.AddSingleton<RoomService>();
             builder.Services.AddTransient<RoomViewModel>();
             builder.Services.AddTransient<MainPage>();
+            builder.Services.AddSingleton<BookingService>();
+            builder.Services.AddTransient<BookingPage>();
+            builder.Services.AddTransient<BookingViewModel>();
+            builder.Services.AddTransient<CreateBookingPage>();
+            builder.Services.AddTransient<CreateBookingViewModel>();
 
             return builder.Build();
         }
