@@ -1,17 +1,17 @@
-﻿using System.Net.Http.Json;
-using hotelbooking.App.Models;
-using hotelbooking.App.ViewModels;
+﻿using hotelbooking.App.ViewModels;
 
 namespace hotelbooking.App
 {
     public partial class MainPage : ContentPage
     {
-        private readonly RoomViewModel viewModel = new();
-        public MainPage()
+        private readonly RoomViewModel viewModel;
+        public MainPage(RoomViewModel viewModel)
         {
             InitializeComponent();
+            this.viewModel = viewModel;
             BindingContext = viewModel;
         }
+       
         protected override async void OnAppearing()
         {
             base.OnAppearing();

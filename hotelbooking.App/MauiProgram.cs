@@ -1,11 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using hotelbooking.App.ViewModels;
+using hotelbooking.App.Services;
+
+using Microsoft.Extensions.Logging;
 
 namespace hotelbooking.App
 {
     public static class MauiProgram
     {
         public static MauiApp CreateMauiApp()
-        {
+        {            
+
+
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
@@ -18,6 +23,9 @@ namespace hotelbooking.App
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
+            builder.Services.AddSingleton<RoomService>();
+            builder.Services.AddTransient<RoomViewModel>();
+            builder.Services.AddTransient<MainPage>();
 
             return builder.Build();
         }

@@ -6,12 +6,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 using hotelbooking.App.Models;
+using hotelbooking.App.Services;
 
 namespace hotelbooking.App.ViewModels
 {
     public partial class RoomViewModel : ObservableObject
     {
-        private static readonly HttpClient client = new();
+        private readonly RoomService roomService;
+        public RoomViewModel(RoomService roomService)
+        {
+            this.roomService = roomService;
+        }
 
         public ObservableCollection<Room> Rooms { get; } = new();
 
@@ -25,11 +30,11 @@ namespace hotelbooking.App.ViewModels
         {
             IsBusy = true;
             try
-            {               
-                var rooms = await client.GetFromJsonAsync<List<Room>>($"{ApiConfig.BaseUrl}/room");
+            {
+                var rooms = await roomService.GetRoomsAsync();
 
                 Rooms.Clear();
-                foreach (var room in rooms ?? new List<Room>())
+                foreach (var room in rooms)
                 {
                     Rooms.Add(room);
                 }
